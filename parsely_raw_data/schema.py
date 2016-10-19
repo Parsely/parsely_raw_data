@@ -143,6 +143,10 @@ def mk_bigquery_schema():
     jsonlines = []
     for row in table:
         key, _, type_ = row
+        if type_ == "RECORD":
+            # skip record types since it requires additional
+            # modelling from the user
+            continue
         if "REPEATED" in type_:
             type_ = type_.split(" ")[0]
             mode = "REPEATED"
