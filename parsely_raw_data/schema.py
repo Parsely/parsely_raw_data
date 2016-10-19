@@ -108,7 +108,7 @@ import json
 from tabulate import tabulate
 
 
-def mk_sample_json():
+def mk_sample_event():
     sample = {}
     for record in SCHEMA:
         sample[record["key"]] = record["ex"]
@@ -133,6 +133,7 @@ def mk_bigquery_schema():
         if type_ == "STRING":
             if example and len(example) > 25:
                 example = example[0:23] + "..."
+            example = repr(example)
         table.append([key, example, type_])
     return tabulate(table, headers, tablefmt="pipe")
 
@@ -157,6 +158,7 @@ def mk_redshift_schema():
                 type_ = "VARCHAR(%s)" % record["size"]
             if example and len(example) > 25:
                 example = example[0:23] + "..."
+            example = repr(example)
         if record.get("date", False) and key.startswith("ts_"):
             type_ = "TIMESTAMP"
         table.append([key, example, type_])
@@ -184,6 +186,7 @@ def mk_markdown_table(prefix=None):
         if type_ == "STRING":
             if example and len(example) > 25:
                 example = example[0:23] + "..."
+            example = repr(example)
         if record.get("date", False):
             type_ = "DATE (%s)" % type_
         table.append([key, example, type_])
@@ -195,10 +198,10 @@ def jsonprint(obj):
 
 
 if __name__ == "__main__":
-    print("## Sample JSON event:")
+    print("## Sample Event")
     print()
     print("```javascript")
-    jsonprint(mk_sample_json())
+    jsonprint(mk_sample_event())
     print("```")
     print()
     print("## Schema Overview")
