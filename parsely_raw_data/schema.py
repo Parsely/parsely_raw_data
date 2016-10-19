@@ -115,7 +115,7 @@ def mk_sample_event():
     return sample
 
 
-def mk_bigquery_schema():
+def mk_bigquery_table():
     table = []
     headers = ["Column", "Example", "Type"]
     for record in SCHEMA:
@@ -135,10 +135,28 @@ def mk_bigquery_schema():
                 example = example[0:23] + "..."
             example = repr(example)
         table.append([key, example, type_])
-    return tabulate(table, headers, tablefmt="pipe")
+    return table, headers
 
 
-def mk_redshift_schema():
+def mk_bigquery_schema():
+    table, headers = mk_bigquery_table()
+    jsonlines = []
+    for row in table:
+        key, _, type_ = row
+        if "REPEATED" in type_:
+            type_ = type_.split(" ")[0]
+            mode = "REPEATED"
+        else:
+            mode = "NULLABLE"
+        jsonlines.append({
+            "name": key,
+            "type": type_,
+            "mode": mode
+        })
+    return jsonlines
+
+
+def mk_redshift_table():
     table = []
     headers = ["Column", "Example", "Type"]
     for record in SCHEMA:
@@ -162,7 +180,7 @@ def mk_redshift_schema():
         if record.get("date", False) and key.startswith("ts_"):
             type_ = "TIMESTAMP"
         table.append([key, example, type_])
-    return tabulate(table, headers, tablefmt="pipe")
+    return table, headers
 
 
 def mk_markdown_table(prefix=None):
@@ -190,29 +208,42 @@ def mk_markdown_table(prefix=None):
         if record.get("date", False):
             type_ = "DATE (%s)" % type_
         table.append([key, example, type_])
-    return tabulate(table, headers, tablefmt="pipe")
+    return table, headers
 
 
 def jsonprint(obj):
     print(json.dumps(obj, indent=4, sort_keys=True))
 
 
+def tableprint(table, headers):
+    print(tabulate(table, headers, tablefmt="pipe"))
+
+def br():
+    print()
+
+
 if __name__ == "__main__":
     print("## Sample Event")
-    print()
+    br()
     print("```javascript")
     jsonprint(mk_sample_event())
     print("```")
-    print()
+    br()
     print("## Schema Overview")
-    print()
-    print(mk_markdown_table())
-    print()
+    br()
+    tableprint(*mk_markdown_table())
+    br()
     print("## BigQuery Schema")
-    print()
-    print(mk_bigquery_schema())
-    print()
+    br()
+    tableprint(*mk_bigquery_table())
+    br()
+    print("## BigQuery DDL")
+    br()
+    print("```javascript")
+    jsonprint(mk_bigquery_schema())
+    print("```")
+    br()
     print("## Redshift Schema")
-    print()
-    print(mk_redshift_schema())
-    print()
+    br()
+    tableprint(*mk_redshift_table())
+    br()
