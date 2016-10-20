@@ -1,8 +1,8 @@
 from __future__ import print_function
 
 SCHEMA = [
-    {"key": "action", "ex": "pageview", "type": str, "size": 256},
-    {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256},
+    {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
+    {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
     {"key": "display", "ex": True, "type": bool},
     {"key": "display_avail_height", "ex": 735, "type": int},
     {"key": "display_avail_width", "ex": 1280, "type": int},
@@ -71,7 +71,7 @@ SCHEMA = [
     {"key": "surl_query", "ex": "", "type": str},
     {"key": "surl_scheme", "ex": "http", "type": str, "size": 64},
     {"key": "timestamp_info", "ex": True, "type": bool},
-    {"key": "timestamp_info_nginx_ms", "ex": 1473277850000, "type": int, "date": True},
+    {"key": "timestamp_info_nginx_ms", "ex": 1473277850000, "type": int, "date": True, "req": True},
     {"key": "timestamp_info_override_ms", "ex": None, "type": int, "date": True},
     {"key": "timestamp_info_pixel_ms", "ex": 1473277850017, "type": int, "date": True},
     {"key": "ts_action", "ex": "2016-09-07 19:50:50", "type": str, "date": True},
@@ -100,7 +100,7 @@ SCHEMA = [
     {"key": "visitor", "ex": True, "type": bool},
     {"key": "visitor_ip", "ex": "108.225.131.20", "type": str, "size": 256},
     {"key": "visitor_network_id", "ex": "ac94fe31-a307-4020-9a23-fa4798217b02", "type": str, "size": 128},
-    {"key": "visitor_site_id", "ex": "ab94fd31-a207-4010-8a25-fb4788207b82", "type": str, "size": 128}
+    {"key": "visitor_site_id", "ex": "ab94fd31-a207-4010-8a25-fb4788207b82", "type": str, "size": 128, "req": True}
 ]
 
 
@@ -183,8 +183,28 @@ def mk_redshift_table():
             example = repr(example)
         if record.get("date", False) and key.startswith("ts_"):
             type_ = "TIMESTAMP"
+        if record.get("req", False):
+            type_ = type_ + "*"
         table.append([key, example, type_])
     return table, headers
+
+
+def mk_redshift_schema():
+    table, headers = mk_redshift_table()
+    ddl = []
+    # open
+    ddl.append("CREATE TABLE rawdata (")
+    for row in table:
+        key, _, type_ = row
+        if "*" in type_:
+            type_ = type_.replace("*", "") + " NOT NULL"
+        # each line of DDL with key/type
+        ddl.append("{:8}{:35} {:25}".format(" ", key, type_ + ","))
+    # strip trailing comma
+    ddl[-1] = ddl[-1].replace(",", "")
+    # close it up
+    ddl.append(");")
+    return "\n".join(ddl)
 
 
 def mk_markdown_table(prefix=None):
@@ -251,3 +271,8 @@ if __name__ == "__main__":
     br()
     tableprint(*mk_redshift_table())
     br()
+    print("## Redshift DDL")
+    br()
+    print("```sql")
+    print(mk_redshift_schema())
+    print("```")
