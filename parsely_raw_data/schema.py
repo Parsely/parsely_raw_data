@@ -169,6 +169,8 @@ def mk_spark_sql_schema(with_visitor_partition=False):
     for field in SCHEMA:
         k = field['key']
         typ = field['type']
+        if k == "metadata_share_urls":
+            schema.add(l, StringType())
         if typ is str:
             schema.add(k, StringType())
         elif typ is int:
