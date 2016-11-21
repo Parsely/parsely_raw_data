@@ -160,9 +160,9 @@ def mk_bigquery_schema():
     return jsonlines
 
 
-def mk_spark_sql_schema():
+def mk_spark_sql_schema(with_visitor_partition=False):
     from pyspark.sql.types import (
-        ArrayType, BooleanType, DoubleType,
+        ArrayType, BooleanType, DoubleType, IntegerType,
         LongType, StringType, StructType)
 
     schema = StructType()
@@ -183,6 +183,8 @@ def mk_spark_sql_schema():
             schema.add(k, ArrayType(StringType()))
         else:
             raise TypeError, "Don't know how to parse field %s of type %s" % (k, typ)
+    if with_visitor_partition:
+        schema.add("visitor_partition", IntegerType())
     return schema
 
 
