@@ -160,6 +160,32 @@ def mk_bigquery_schema():
     return jsonlines
 
 
+def mk_spark_sql_schema():
+    from pyspark.sql.types import (
+        ArrayType, BooleanType, DoubleType,
+        LongType, StringType, StructType)
+
+    schema = StructType()
+    for field in SCHEMA:
+        k = field['key']
+        typ = field['type']
+        if typ is str:
+            schema.add(k, StringType())
+        elif typ is int:
+            schema.add(k, LongType())
+        elif typ is float:
+            schema.add(k, DoubleType())
+        elif typ is bool:
+            schema.add(k, BooleanType())
+        elif typ is object:
+            schema.add(k, StringType())
+        elif typ is list:
+            schema.add(k, ArrayType(StringType()))
+        else:
+            raise TypeError, "Don't know how to parse field %s of type %s" % (k, typ)
+    return schema
+
+
 def mk_redshift_table():
     table = []
     headers = ["Column", "Example", "Type"]
