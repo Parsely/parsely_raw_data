@@ -1,5 +1,6 @@
-from parsely_raw_data.event import (Event, VisitorInfo, TimestampInfo, DisplayInfo,
-                                    SessionInfo, SlotInfo, Metadata)
+from parsely_raw_data.event import (Event, VisitorInfo, TimestampInfo,
+                                    DisplayInfo, SessionInfo, SlotInfo,
+                                    Metadata, CampaignInfo)
 
 
 event = Event(
@@ -42,9 +43,9 @@ event = Event(
         420,
         ["http://twitter.com/nothing"],
         69
-    )
+    ),
+    CampaignInfo('spring_sale', 'email', 'newsletter', 'logolink', 'foo'),
 )
-
 
 def test_to_dict_checker():
     """Make sure that the length of __slots__ hasn't changed.
@@ -55,20 +56,18 @@ def test_to_dict_checker():
     """
     msg = "It looks like an object has changed. Please be sure to update to_dict before updating this test to pass."
     assert len(DisplayInfo.__slots__) == 5, msg
-    assert len(Event.__slots__) == 13, msg
+    assert len(Event.__slots__) == 14, msg
     assert len(SessionInfo.__slots__) == 5, msg
     assert len(SlotInfo.__slots__) == 4, msg
     assert len(TimestampInfo.__slots__) == 3, msg
     assert len(VisitorInfo.__slots__) == 3, msg
+    assert len(Metadata.__slots__) == 16, msg
+    assert len(CampaignInfo.__slots__) == 5, msg
 
 
 def test_dict():
     serded = Event.from_dict(event.to_dict())
     assert serded == event
-
-if __name__ == "__main__":
-    test_dict()
-    test_to_dict_checker()
 
 
 def test_missing_extra():
@@ -98,7 +97,13 @@ def test_missing_extra():
                                       'https://www.google.ca/',
                                       1470045600000),
                   slot=None,
-                  metadata=None)
+                  metadata=None,
+                  campaign=None)
 
     other = Event.from_dict(event.to_dict())
     assert other.extra_data == extra_data
+
+
+if __name__ == "__main__":
+    test_dict()
+    test_to_dict_checker()

@@ -150,15 +150,28 @@ class DisplayInfo(SlotsMixin):
         self.pixel_depth = pixel_depth
 
 
+class CampaignInfo(SlotsMixin):
+    """Holds info about campaign qsargs for an Event."""
+    __slots__ = ('id', 'medium', 'source', 'content', 'term')
+    __version__ = 1
+
+    def __init__(self, id_, medium, source, content, term):
+        self.id = id_
+        self.medium = medium
+        self.source = source
+        self.content = content
+        self.term = term
+
+
 class Event(SlotsMixin):
     __slots__ = ('apikey', 'url', 'referrer', 'action', 'engaged_time_inc',
                  'visitor', 'extra_data', 'user_agent', 'display',
-                 'timestamp_info', 'session', 'slot', 'metadata')
+                 'timestamp_info', 'session', 'slot', 'metadata', 'campaign')
     __version__ = 1
 
     def __init__(self, apikey, url, referrer, action, engaged_time_inc, visitor,
                  extra_data, user_agent, display, timestamp_info, session, slot,
-                 metadata):
+                 metadata, campaign):
         self.apikey = apikey
         self.url = url
         self.referrer = referrer
@@ -172,6 +185,7 @@ class Event(SlotsMixin):
         self.session = session
         self.slot = slot
         self.metadata = metadata
+        self.campaign = campaign
 
     def to_dict(self):
         """Return a Event represented as a dictionary."""
@@ -253,6 +267,16 @@ class Event(SlotsMixin):
             event_dict['metadata.__version__'] = self.metadata.__version__
         else:
             event_dict['metadata'] = False
+        if self.campaign:
+            event_dict['campaign'] = True
+            event_dict['campaign.id'] = self.campaign.id
+            event_dict['campaign.medium'] = self.campaign.medium
+            event_dict['campaign.source'] = self.campaign.source
+            event_dict['campaign.content'] = self.campaign.content
+            event_dict['campaign.term'] = self.campaign.term
+            event_dict['campaign.__version__'] = self.campaign.__version__
+        else:
+            event_dict['campaign'] = False
         event_dict['version'] = self.__version__
         return event_dict
 
@@ -315,6 +339,14 @@ class Event(SlotsMixin):
                                 data.get('metadata.duration'))
         else:
             metadata = None
+        if data.get('metadata'):
+            campaign = CampaignInfo(data.get('campaign.id'),
+                                    data.get('campaign.medium'),
+                                    data.get('campaign.source'),
+                                    data.get('campaign.content'),
+                                    data.get('campaign.term'))
+        else:
+            campaign = None
         return cls(data.get('apikey'),
                    data.get('url'),
                    data.get('referrer'),
@@ -327,4 +359,5 @@ class Event(SlotsMixin):
                    timestamp_info,
                    session,
                    slot,
-                   metadata)
+                   metadata,
+                   campaign)
