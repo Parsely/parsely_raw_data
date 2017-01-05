@@ -166,12 +166,13 @@ class CampaignInfo(SlotsMixin):
 class Event(SlotsMixin):
     __slots__ = ('apikey', 'url', 'referrer', 'action', 'engaged_time_inc',
                  'visitor', 'extra_data', 'user_agent', 'display',
-                 'timestamp_info', 'session', 'slot', 'metadata', 'campaign')
+                 'timestamp_info', 'session', 'slot', 'metadata', 'campaign',
+                 'source')
     __version__ = 1
 
     def __init__(self, apikey, url, referrer, action, engaged_time_inc, visitor,
                  extra_data, user_agent, display, timestamp_info, session, slot,
-                 metadata, campaign):
+                 metadata, campaign, source):
         self.apikey = apikey
         self.url = url
         self.referrer = referrer
@@ -186,6 +187,7 @@ class Event(SlotsMixin):
         self.slot = slot
         self.metadata = metadata
         self.campaign = campaign
+        self.source = source
 
     def to_dict(self):
         """Return a Event represented as a dictionary."""
@@ -197,6 +199,7 @@ class Event(SlotsMixin):
             'engaged_time_inc': self.engaged_time_inc,
             'extra_data': self.extra_data,
             'user_agent': self.user_agent,
+            'source': self.source,
         }
         # We store whether or not visitor, display, timestamp_info, and slot are
         # None in the dict to make sure we rebuild the same thing when
@@ -360,4 +363,5 @@ class Event(SlotsMixin):
                    session,
                    slot,
                    metadata,
-                   campaign)
+                   campaign,
+                   data.get('source'))
