@@ -100,7 +100,7 @@ def test_missing_extra():
                   slot=None,
                   metadata=None,
                   campaign=None,
-                  source=None)
+                  source='amp')
 
     other = Event.from_dict(event.to_dict())
     assert other.extra_data == extra_data
