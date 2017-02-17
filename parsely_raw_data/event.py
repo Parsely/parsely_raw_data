@@ -82,13 +82,13 @@ class Metadata(SlotsMixin):
     __slots__ = ('authors', 'canonical_url', 'urls', 'page_type', 'post_id',
                  'pub_date_tmsp', 'custom_metadata', 'section', 'tags',
                  'save_date_tmsp', 'thumb_url', 'title', 'image_url',
-                 'full_content_word_count', 'share_urls', 'duration')
+                 'full_content_word_count', 'share_urls', 'duration', 'video_platform')
     __version__ = 1
 
     def __init__(self, authors, canonical_url, urls, page_type, post_id,
                  pub_date_tmsp, custom_metadata, section, tags,
                  save_date_tmsp, thumb_url, title, image_url,
-                 full_content_word_count, share_urls, duration):
+                 full_content_word_count, share_urls, duration, video_platform):
         self.authors = authors
         self.canonical_url = canonical_url
         self.urls = urls
@@ -105,6 +105,7 @@ class Metadata(SlotsMixin):
         self.full_content_word_count = full_content_word_count
         self.share_urls = share_urls
         self.duration = duration
+        self.video_platform = video_platform
 
 
 class SlotInfo(SlotsMixin):
