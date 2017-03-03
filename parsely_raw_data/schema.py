@@ -229,8 +229,8 @@ def mk_redshift_table():
             example = repr(example)
         if record.get("date", False) and key.startswith("ts_"):
             type_ = "TIMESTAMP"
-	elif record.get("date", False):
-	    type_ = "BIGINT"
+        elif record.get("date", False):
+            type_ = "BIGINT"
         if record.get("req", False):
             type_ = type_ + " NOT NULL"
         table.append([key, example, type_])
