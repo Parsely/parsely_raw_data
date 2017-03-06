@@ -42,7 +42,8 @@ event = Event(
         "http://parsely.com/imgurl",
         420,
         ["http://twitter.com/nothing"],
-        69
+        69,
+        'crawl'
     ),
     CampaignInfo('spring_sale', 'email', 'newsletter', 'logolink', 'foo'),
     EventFlags(False),
@@ -62,7 +63,7 @@ def test_to_dict_checker():
     assert len(SlotInfo.__slots__) == 4, msg
     assert len(TimestampInfo.__slots__) == 3, msg
     assert len(VisitorInfo.__slots__) == 3, msg
-    assert len(Metadata.__slots__) == 16, msg
+    assert len(Metadata.__slots__) == 17, msg
     assert len(CampaignInfo.__slots__) == 5, msg
     assert len(EventFlags.__slots__) == 1, msg
 

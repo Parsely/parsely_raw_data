@@ -82,13 +82,15 @@ class Metadata(SlotsMixin):
     __slots__ = ('authors', 'canonical_url', 'urls', 'page_type', 'post_id',
                  'pub_date_tmsp', 'custom_metadata', 'section', 'tags',
                  'save_date_tmsp', 'thumb_url', 'title', 'image_url',
-                 'full_content_word_count', 'share_urls', 'duration')
+                 'full_content_word_count', 'share_urls', 'duration',
+                 'data_source')
     __version__ = 1
 
     def __init__(self, authors, canonical_url, urls, page_type, post_id,
                  pub_date_tmsp, custom_metadata, section, tags,
                  save_date_tmsp, thumb_url, title, image_url,
-                 full_content_word_count, share_urls, duration):
+                 full_content_word_count, share_urls, duration,
+                 data_source):
         self.authors = authors
         self.canonical_url = canonical_url
         self.urls = urls
@@ -105,6 +107,7 @@ class Metadata(SlotsMixin):
         self.full_content_word_count = full_content_word_count
         self.share_urls = share_urls
         self.duration = duration
+        self.data_source = data_source
 
 
 class SlotInfo(SlotsMixin):
@@ -285,6 +288,7 @@ class Event(SlotsMixin):
             event_dict['metadata.full_content_word_count'] = self.metadata.full_content_word_count
             event_dict['metadata.share_urls'] = self.metadata.share_urls
             event_dict['metadata.duration'] = self.metadata.duration
+            event_dict['metadata.data_source'] = self.metadata.data_source
             event_dict['metadata.__version__'] = self.metadata.__version__
         else:
             event_dict['metadata'] = False
@@ -363,7 +367,8 @@ class Event(SlotsMixin):
                                 data.get('metadata.image_url'),
                                 data.get('metadata.full_content_word_count'),
                                 data.get('metadata.share_urls'),
-                                data.get('metadata.duration'))
+                                data.get('metadata.duration'),
+                                data.get('metadata.data_source'))
         else:
             metadata = None
         if data.get('campaign'):
