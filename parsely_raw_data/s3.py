@@ -8,7 +8,6 @@ from io import BytesIO
 import boto3
 
 from . import utils
-from .event import Event
 
 
 __license__ = """

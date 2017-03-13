@@ -20,6 +20,7 @@ and documentation in Markdown format.
 SCHEMA = [
     {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
+    {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256},
     {"key": "display", "ex": True, "type": bool},
     {"key": "display_avail_height", "ex": 735, "type": int},
     {"key": "display_avail_width", "ex": 1280, "type": int},
@@ -28,6 +29,7 @@ SCHEMA = [
     {"key": "display_total_width", "ex": 1280, "type": int},
     {"key": "engaged_time_inc", "ex": None, "type": int},
     {"key": "extra_data", "ex": None, "type": object},
+    {"key": "flags_is_amp", "ex": None, "type": bool},
     {"key": "ip_city", "ex": "Newark", "type": str},
     {"key": "ip_continent", "ex": "NA", "type": str, "size": 2},
     {"key": "ip_country", "ex": "US", "type": str, "size": 2},
@@ -36,11 +38,15 @@ SCHEMA = [
     {"key": "ip_postal", "ex": "94560", "type": str, "size": 64},
     {"key": "ip_subdivision", "ex": "CA", "type": str, "size": 3},
     {"key": "ip_timezone", "ex": "America/Los_Angeles", "type": str, "size": 256},
+    {"key": "ip_market_name", "ex": "New York", "type": str, "size": 256},
+    {"key": "ip_market_nielsen", "ex": "501", "type": str, "size": 3},
+    {"key": "ip_market_doubleclick", "ex": "3", "type": str, "size": 3},
     {"key": "metadata", "ex": True, "type": bool},
     {"key": "metadata_authors", "ex": ["Laura Vitto"], "type": list},
     {"key": "metadata_canonical_url", "ex": "http://mashable.com/2016/09/07/airpods-jokes/", "type": str},
     {"key": "metadata_custom_metadata", "ex": "{\"site\":\"Mashable\"}", "type": str},
     {"key": "metadata_duration", "ex": None, "type": int},
+    {"key": "metadata_data_source", "ex": 'crawl', "type": str, "size": 8},
     {"key": "metadata_full_content_word_count", "ex": 174, "type": int},
     {"key": "metadata_image_url", "ex": "http://a.amz.mshcdn.com/media/ZgkyMDE2LzA5LzA3LzU2L0NyeFhpNjNYRUFBSnZwRS5lNDAyMy5qcGcKcAl0aHVtYgkxMjAweDYzMAplCWpwZw/156d0173/3ae/CrxXi63XEAAJvpE.jpg", "type": str},
     {"key": "metadata_page_type", "ex": "post", "type": str, "size": 256},
@@ -112,6 +118,11 @@ SCHEMA = [
     {"key": "url_path", "ex": "/2016/09/07/airpods-jokes/", "type": str},
     {"key": "url_query", "ex": "", "type": str},
     {"key": "url_scheme", "ex": "http", "type": str, "size": 64},
+    {"key": "utm_campaign", "ex": "facebook_campaign", "type": str, "size": 256},
+    {"key": "utm_medium", "ex": "partners", "type": str, "size": 64},
+    {"key": "utm_source", "ex": "facebook", "type": str, "size": 64},
+    {"key": "utm_term", "ex": "8098", "type": str, "size": 64},
+    {"key": "utm_content", "ex": "sports", "type": str, "size": 256},
     {"key": "user_agent", "ex": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7", "type": str},
     {"key": "version", "ex": 1, "type": int},
     {"key": "visitor", "ex": True, "type": bool},
@@ -226,8 +237,8 @@ def mk_redshift_table():
             example = repr(example)
         if record.get("date", False) and key.startswith("ts_"):
             type_ = "TIMESTAMP"
-	elif record.get("date", False):
-	    type_ = "BIGINT"
+        elif record.get("date", False):
+            type_ = "BIGINT"
         if record.get("req", False):
             type_ = type_ + " NOT NULL"
         table.append([key, example, type_])

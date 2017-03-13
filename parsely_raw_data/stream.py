@@ -11,7 +11,6 @@ from six import iteritems
 from six.moves.queue import Queue, Empty
 
 from . import utils
-from .event import Event
 
 __license__ = """
 Copyright 2016 Parsely, Inc.
@@ -26,6 +25,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+"""
+Consider the below a demostration of how Kinesis can be utilized with
+the Parse.ly data pipeline; additional configuration may be necessary. 
+Larger publishers in particular will likely need multiple processes.
+"""
 
 def events_kinesis(network, access_key_id="", secret_access_key=""):
     """Yield a stream of events from a Parse.ly Kinesis Stream
@@ -69,7 +73,7 @@ def events_kinesis(network, access_key_id="", secret_access_key=""):
                         event_data = json.loads(event_data)
                     except ValueError:
                         continue
-                    event_queue.put(Event.from_dict(event_data))
+                    event_queue.put(event_data)
 
     workers = []
     description = {"HasMoreShards": True}
@@ -109,8 +113,8 @@ def main():
             access_key_id=args.aws_access_key_id,
             secret_access_key=args.aws_secret_access_key):
         total_count += 1
-        if event.action == "pageview":
-            url_counts[event.url] += 1
+        if event['action'] == "pageview":
+            url_counts[event['url']] += 1
 
         if total_count % 20 == 0:
             sorted_pairs = sorted(iteritems(url_counts), key=lambda x: x[1],
