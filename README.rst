@@ -51,6 +51,7 @@ If you have the project installed with `pip`, you can use the following console 
 * ``parsely_bigquery`` = ``parsely_raw_data.bigquery``
 * ``parsely_s3`` = ``parsely_raw_data.s3``
 * ``parsely_stream`` = ``parsely_raw_data.stream``
+* ``parsely_schema`` = ``parsely_raw_data.docgen``
 
 Alternately, you can clone the repo, and run each module from within the repo directory, like this:
 

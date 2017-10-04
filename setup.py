@@ -29,10 +29,6 @@ def get_version():
         return re.search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
                          version_file.read()).group('version')
 
-install_requires = [
-    'six',
-]
-
 lint_requires = [
     'pep8',
     'pyflakes'
@@ -45,6 +41,10 @@ def read_lines(fname):
 
 tests_require = [
     x.strip() for x in read_lines('test-requirements.txt') if not x.startswith('-')
+]
+
+install_requires = [
+    x.strip() for x in read_lines('requirements.txt') if not x.startswith('-')
 ]
 
 dependency_links = []
@@ -90,9 +90,10 @@ def run_setup():
                 'parsely_redshift = parsely_raw_data.redshift:main',
                 'parsely_s3 = parsely_raw_data.s3:main',
                 'parsely_stream = parsely_raw_data.stream:main',
+                'parsely_schema = parsely_raw_data.docgen:main'
             ]
         },
-        install_requires=[],
+        install_requires=install_requires,
         tests_require=tests_require,
         setup_requires=setup_requires,
         extras_require={
