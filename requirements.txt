@@ -1,6 +1,6 @@
 boto3==1.2.3
 google-api-python-client
-psycopg2
+psycopg2cffi-compat
 six
 tablib
 xlsxwriter
