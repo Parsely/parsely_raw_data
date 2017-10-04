@@ -1,4 +1,4 @@
-select * from {{ var('parsely:rawdata') }}
+select * from {{ var('parsely:events') }}
 where action in ('videostart','vheartbeat')
 
 -- Questions

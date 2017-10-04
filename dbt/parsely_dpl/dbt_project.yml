@@ -26,13 +26,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # You can define configurations for models in the `source-paths` directory here.
 # Using these configurations, you can enable or disable models, change how they
 # are materialized, and more!
-
 # In this example config, we tell dbt to build all models in the example/ directory
 # as views (the default). Try changing `view` to `table` below, then re-running dbt
 models:
   parsely:
     vars:
-      'parsely:events': 'parsely_rawdata'
+      'parsely:events': parsely_rawdata
       'parsely:timezone': 'America/New_York'
     base:
       materialized: ephemeral
