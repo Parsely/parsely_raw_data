@@ -2,7 +2,7 @@
 # Name your package! Package names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'parsely_dpl'
+name: 'parsely'
 version: '0.0.1'
 
 # This setting configures which "profile" dbt uses for this project. Profiles contain
@@ -31,12 +31,13 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   parsely:
     vars:
-      'parsely:events': parsely_rawdata
+      'parsely:events': 'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
     base:
       materialized: ephemeral
       optional:
         enabled: true
+    transform:
     pageviews:
     videoviews:
     sessions:
