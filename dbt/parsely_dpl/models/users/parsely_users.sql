@@ -1,0 +1,3 @@
+-- 1 row per visitor_site_Id
+-- includes visitor type, returning, new, subscribers, etc
+-- first login, last login, etc

@@ -1,22 +1,22 @@
 -- 1 row per pageview
 
-with pageviews as (
+with pageview_events as (
 
-    select * from parsely_base_events
-    where action in ('pageview','heartbeat')
+    select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
+    where action in ('pageview', 'heartbeat')
 
 ),
 
 -- derived fields
-pageviews_xf as (
-
-    select *,
+publish_read_time_xf as (
+    select
+        event_id,
         (TIMESTAMP 'epoch' + left(metadata_pub_date_tmsp,10)::bigint * INTERVAL '1 Second ') as publish_time,
         (TIMESTAMP 'epoch' + left(timestamp_info_nginx_ms,10)::bigint * INTERVAL '1 Second ') as read_time
 
-    from pageviews
+    from pageview_events
 
-)
+),
 
 -- aggregating engaged time
 engaged_xf as (
@@ -25,15 +25,14 @@ engaged_xf as (
       apikey,
       session_id,
       visitor_site_id,
-      metadata_post_id,
-      -- date?? hour?? 5 min bucket? can't rely on session_id, resets probably every s3 bucket
-      --join on interval of timestamp with ts_action and pageview and heartbeats
-      --one session, visitor, and postid can have multipe pageviews per session - so need to include a time interval
-      --doing it without interval match means potential duplicate counts of engaged time when summing
-      sum(engaged_time_inc) as engaged_time
-  from pageviews
+      coalesce(metadata_canonical_url,url) as post_id,
+      referrer,
+      count(distinct pv_key) as engaged_denominator,
+      -- divide by the number of total pageviews that match with the heartbeats in case of rare dupliction pageview/referrer in one session
+      sum(engaged_time_inc)/case when  count(distinct pv_key) = 0 then 1 else count(distinct pv_key) end as engaged_time
+  from pageview_events
   where action = 'heartbeat'
-  group by apikey, session_id, visitor_site_id, metadata_post_id --, hour? or date?
+  group by apikey, session_id, visitor_site_id, coalesce(metadata_canonical_url,url), referrer --, hour? or date?
 )
 
 
@@ -44,7 +43,13 @@ select
     datediff(day, publish_time, read_time) as days_since_publish,
     datediff(week, publish_time, read_time) as weeks_since_publish,
     -- aggregated fields
-    exf.engaged_time,
+    engaged_time,
+    1 as pageview_counter,
+    -- derived fields
+    publish_time,
+    read_time,
+    json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
+    coalesce(metadata_canonical_url,url) as post_id,
     -- standard fields
     action	,
     apikey	,
@@ -157,10 +162,7 @@ select
     visitor_ip	,
     visitor_network_id	,
     visitor_site_id
-  from pageviews pv
+  from pageview_events
+  left join engaged_xf using (apikey,session_id,visitor_site_id,post_id,referrer)
+  left join publish_read_time_xf using (event_id)
   where action = 'pageview'
-  left join events_xf exf on
-    exf.apikey = pv.apikey and
-    exf.session_id = pv.session_id and
-    exf.visitor_site_id = pv.visitor_site_id and
-    exf.metadata_post_id = pv.metadata_post_id;
