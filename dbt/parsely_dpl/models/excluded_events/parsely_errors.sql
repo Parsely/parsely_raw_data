@@ -1,55 +1,37 @@
--- 1 row per pageview
+-- 1 row per null action event
 
-with pageview_events as (
+
+with error_events as (
 
     select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
-    where action in ('pageview', 'heartbeat')
+    where action is null
 
 ),
 
 -- derived fields
-publish_read_time_xf as (
+error_publish_read_time_xf as (
     select
         event_id,
         (TIMESTAMP 'epoch' + left(metadata_pub_date_tmsp,10)::bigint * INTERVAL '1 Second ') as publish_time,
-        (TIMESTAMP 'epoch' + left(timestamp_info_nginx_ms,10)::bigint * INTERVAL '1 Second ') as read_time
+        (TIMESTAMP 'epoch' + left(timestamp_info_nginx_ms,10)::bigint * INTERVAL '1 Second ') as event_time
 
-    from pageview_events
+    from error_events
 
-),
-
--- aggregating engaged time
-engaged_xf as (
-
-  select
-      apikey,
-      session_id,
-      visitor_site_id,
-      coalesce(metadata_canonical_url,url) as post_id,
-      referrer,
-      count(distinct pv_key) as engaged_denominator,
-      -- divide by the number of total pageviews that match with the heartbeats in case of rare dupliction pageview/referrer in one session
-      sum(engaged_time_inc)/case when  count(distinct pv_key) = 0 then 1 else count(distinct pv_key) end as engaged_time
-  from pageview_events
-  where action = 'heartbeat'
-  group by apikey, session_id, visitor_site_id, coalesce(metadata_canonical_url,url), referrer --, hour? or date?
 )
 
 
 select
 
+    -- metrics and counter fields
+    1 as error_event_counter,
     -- derived fields
-    datediff(hour, publish_time, read_time) as hours_since_publish,
-    datediff(day, publish_time, read_time) as days_since_publish,
-    datediff(week, publish_time, read_time) as weeks_since_publish,
-    -- aggregated fields
-    engaged_time,
-    1 as pageview_counter,
-    -- derived fields
+    datediff(hour, publish_time, event_time) as hours_since_publish,
+    datediff(day, publish_time, event_time) as days_since_publish,
+    datediff(week, publish_time, event_time) as weeks_since_publish,
     publish_time,
-    read_time,
+    event_time,
     json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
-    coalesce(metadata_canonical_url,url) as post_id,
+    pageview_post_id,
     -- standard fields
     action	,
     apikey	,
@@ -60,6 +42,7 @@ select
     display_pixel_depth	,
     display_total_height	,
     display_total_width	,
+    engaged_time_inc,
     event_id	,
     extra_data,
     flags_is_amp	,
@@ -162,7 +145,5 @@ select
     visitor_ip	,
     visitor_network_id	,
     visitor_site_id
-  from pageview_events
-  left join engaged_xf using (apikey,session_id,visitor_site_id,post_id,referrer)
-  left join publish_read_time_xf using (event_id)
-  where action = 'pageview'
+  from error_events
+  left join error_publish_read_time_xf using (event_id)

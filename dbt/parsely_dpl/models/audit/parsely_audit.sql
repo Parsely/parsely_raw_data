@@ -1,0 +1,4 @@
+-- number of processed events by S3 bucket (sum total)
+-- number of excluded events by s3 bucket (separated by bot traffic and errors)
+-- number of parsely normal events by s3 bucket
+-- number of custom events by s3 bucket

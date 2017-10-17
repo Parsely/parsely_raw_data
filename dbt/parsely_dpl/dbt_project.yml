@@ -33,8 +33,12 @@ models:
     vars:
       'parsely:events': 'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
+      'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
+      'custom:extradata': 'userType' #why does this change to usertype all lowercase when referring to the variable?
+      'custom:extradataname': 'WSJ_user_type'
+      'custom:actions': ''
     base:
-      materialized: ephemeral
+#      materialized: ephemeral
       optional:
         enabled: true
     transform:
@@ -45,3 +49,5 @@ models:
       materialized: view
     metadata:
       materialized: view
+    errors:
+    audit:
