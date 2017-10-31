@@ -2,6 +2,14 @@
 -- sum engaged time for all heartbeats
 -- metrics: videoviews, engaged time
 
+{{
+    config(
+        materialized='incremental',
+        sql_where='TRUE',
+        unique_key='event_id'
+    )
+}}
+
 with video_events as (
 
     select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
@@ -20,8 +28,9 @@ publish_watch_time_xf as (
 
 ),
 
+/*
 -- aggregating engaged time
-engaged_xf as (
+engaged_xf_old as (
 
   select
       apikey,
@@ -30,15 +39,29 @@ engaged_xf as (
       metadata_canonical_url,
       url,
       referrer,
+      ts_session_current,
       --count(distinct videostart_key) as engaged_denominator,
       -- divide by the number of total pageviews that match with the heartbeats in case of rare dupliction pageview/referrer in one session
       sum(engaged_time_inc) as engaged_time
   from video_events vhb
-  left join {{ref('parsely_parent_videostart_keys')}} vs using (apikey, session_id, visitor_site_id,metadata_canonical_url, url, referrer)
+  left join {{ref('parsely_parent_videostart_keys')}} vs using (apikey, session_id, visitor_site_id,metadata_canonical_url, url, referrer, ts_session_current)
   where action = 'vheartbeat' and vhb.ts_action >= vs.ts_action and (case when vs.next_videostart_ts_action is not null then vhb.ts_action < vs.next_videostart_ts_action else true end)
-  group by apikey, session_id, visitor_site_id, metadata_canonical_url, url, referrer
+  group by apikey, session_id, visitor_site_id, metadata_canonical_url, url, referrer, ts_session_current
 )
+*/
+-- aggregating engaged time
+engaged_xf as (
 
+  select
+      vs.event_id,
+      --count(distinct videostart_key) as engaged_denominator,
+      -- divide by the number of total pageviews that match with the heartbeats in case of rare dupliction pageview/referrer in one session
+      sum(engaged_time_inc) as engaged_time
+  from video_events vhb
+  left join {{ref('parsely_parent_videostart_keys')}} vs using (apikey, session_id, visitor_site_id,metadata_canonical_url, url, referrer, ts_session_current)
+  where action = 'vheartbeat' and vhb.ts_action >= vs.ts_action and (case when vs.next_videostart_ts_action is not null then vhb.ts_action < vs.next_videostart_ts_action else true end)
+  group by vs.event_id
+)
 
 select
     -- aggregated fields
@@ -50,7 +73,7 @@ select
     datediff(week, publish_time, watch_time) as weeks_since_publish,
     publish_time,
     watch_time,
-    json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
+    {{ var('custom:extradataname') }},
     pageview_key,
     videostart_key,
     -- standard fields
@@ -134,7 +157,7 @@ select
     timestamp_info_override_ms	,
     timestamp_info_pixel_ms	,
     ve.ts_action	,
-    ts_session_current	,
+    ve.ts_session_current	,
     ts_session_last	,
     ua_browser	,
     ua_browserversion	,
@@ -166,7 +189,7 @@ select
     visitor_network_id	,
     visitor_site_id
   from video_events ve
-  left join engaged_xf using (apikey, session_id, visitor_site_id, metadata_canonical_url, url,referrer)
+  left join engaged_xf using (event_id)--(apikey, session_id, visitor_site_id, metadata_canonical_url, url,referrer, ts_session_current)
   left join publish_watch_time_xf using (event_id)
-  left join {{ref('parsely_parent_videostart_keys')}} using (apikey, session_id, visitor_site_id,metadata_canonical_url, url, referrer)
+  left join {{ref('parsely_parent_videostart_keys')}} using (event_id, apikey, session_id, visitor_site_id, metadata_canonical_url, url,referrer, ts_session_current )
   where action = 'videostart'

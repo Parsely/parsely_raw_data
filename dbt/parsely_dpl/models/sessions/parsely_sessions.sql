@@ -3,7 +3,15 @@
 -- aggregated: pageviews, engaged time, videoviews, video engaged time
 -- should also have session visitor type, returning, new, subscribers, etc (what was true at the time of the session)
 -- metrics: sessions, pageviws, videoviews, engaged time, video watch time
--- what about visitors???
+
+{{
+    config(
+        materialized='incremental',
+        sql_where='TRUE',
+        unique_key='parsely_session_id'
+    )
+}}
+
 
 with session_metrics as (
   select
@@ -21,7 +29,13 @@ with session_metrics as (
 
 session_xf as (
   select distinct
-      {{ var('custom:extradataname') }},
+  --  id
+      apikey || '_' || session_id || '_' || visitor_site_id || '_' || session_timestamp as parsely_session_id,
+  --  session user dimensions
+      user_type as session_user_type,
+      user_engagement_level as session_user_engagement_level,
+--    dimensions
+      pv.{{ var('custom:extradataname') }},
       apikey	,
       flags_is_amp	,
       ip_city	,
@@ -74,7 +88,8 @@ session_xf as (
       visitor_ip	,
       visitor_network_id	,
       visitor_site_id
-  from {{ref('parsely_pageviews')}}
+  from {{ref('parsely_pageviews')}} as pv
+  left join {{ref('parsely_users')}} using (apikey, visitor_site_id, visitor_ip)
 )
 
 select

@@ -1,21 +1,17 @@
 -- 1 row per null action event
 
+{{
+    config(
+        materialized='incremental',
+        sql_where='TRUE',
+        unique_key='event_id'
+    )
+}}
 
 with error_events as (
 
-    select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
+    select * from {{ ref('parsely_all_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
     where action is null
-
-),
-
--- derived fields
-error_publish_read_time_xf as (
-    select
-        event_id,
-        (TIMESTAMP 'epoch' + left(metadata_pub_date_tmsp,10)::bigint * INTERVAL '1 Second ') as publish_time,
-        (TIMESTAMP 'epoch' + left(timestamp_info_nginx_ms,10)::bigint * INTERVAL '1 Second ') as event_time
-
-    from error_events
 
 )
 
@@ -25,11 +21,6 @@ select
     -- metrics and counter fields
     1 as error_event_counter,
     -- derived fields
-    datediff(hour, publish_time, event_time) as hours_since_publish,
-    datediff(day, publish_time, event_time) as days_since_publish,
-    datediff(week, publish_time, event_time) as weeks_since_publish,
-    publish_time,
-    event_time,
     json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
     pageview_post_id,
     -- standard fields
@@ -146,4 +137,3 @@ select
     visitor_network_id	,
     visitor_site_id
   from error_events
-  left join error_publish_read_time_xf using (event_id)

@@ -1,6 +1,14 @@
 -- 1 row per pageview
 -- sum engaged time for all heartbeats
 -- metrics: pageviews, engaged time
+{{
+    config(
+        materialized='incremental',
+        sql_where='TRUE',
+        unique_key='event_id'
+    )
+}}
+
 
 with pageview_events as (
 
@@ -19,9 +27,9 @@ publish_read_time_xf as (
     from pageview_events
 
 ),
-
+/*
 -- aggregating engaged time
-engaged_xf as (
+engaged_xf_old as (
 
   select
       apikey,
@@ -29,12 +37,25 @@ engaged_xf as (
       visitor_site_id,
       pageview_post_id,
       referrer,
+      ts_session_current,
 --      count(distinct pageview_key) as engaged_denominator,
-      sum(engaged_time_inc)/*/case when  count(distinct pageview_key) = 0 then 1 else count(distinct pageview_key) end*/ as engaged_time
+      sum(engaged_time_inc) as engaged_time
   from pageview_events hb
-  left join {{ref('parsely_parent_pageview_keys')}} pv using (apikey, session_id, visitor_site_id, pageview_post_id, referrer)
+  left join {{ref('parsely_parent_pageview_keys')}} pv using (apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current)
   where action = 'heartbeat' and hb.ts_action >= pv.ts_action and (case when pv.next_pageview_ts_action is not null then hb.ts_action < pv.next_pageview_ts_action else true end)
-  group by apikey, session_id, visitor_site_id, pageview_post_id, referrer
+  group by apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current
+),*/
+-- aggregating engaged time
+engaged_xf as (
+
+  select
+      pv.event_id,
+--      count(distinct pageview_key) as engaged_denominator,
+      sum(engaged_time_inc) as engaged_time
+  from pageview_events hb
+  left join {{ref('parsely_parent_pageview_keys')}} pv using (apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current)
+  where action = 'heartbeat' and hb.ts_action >= pv.ts_action and (case when pv.next_pageview_ts_action is not null then hb.ts_action < pv.next_pageview_ts_action else true end)
+  group by pv.event_id
 ),
 
 video_xf as (
@@ -60,7 +81,7 @@ select
     datediff(week, publish_time, read_time) as weeks_since_publish,
     publish_time,
     read_time,
-    json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
+    {{ var('custom:extradataname') }},
     pageview_post_id,
     -- standard fields
     action	,
@@ -143,7 +164,7 @@ select
     timestamp_info_override_ms	,
     timestamp_info_pixel_ms	,
     pe.ts_action	,
-    ts_session_current	,
+    pe.ts_session_current	,
     ts_session_last	,
     ua_browser	,
     ua_browserversion	,
@@ -175,8 +196,8 @@ select
     visitor_network_id	,
     visitor_site_id
   from pageview_events pe
-  left join engaged_xf using (apikey,session_id,visitor_site_id,pageview_post_id,referrer)
+  left join engaged_xf using (event_id)--(apikey,session_id,visitor_site_id,pageview_post_id,referrer, ts_session_current)
   left join publish_read_time_xf using (event_id)
-  left join {{ref('parsely_parent_pageview_keys')}} using (apikey, session_id, visitor_site_id, pageview_post_id, referrer)
+  left join {{ref('parsely_parent_pageview_keys')}} using (event_id, apikey,session_id,visitor_site_id,pageview_post_id,referrer, ts_session_current)
   left join video_xf using (pageview_key)
   where action = 'pageview'

@@ -4,9 +4,17 @@
 -- sum engaged time for all heartbeats
 -- metrics: pageviews, engaged time
 
+{{
+    config(
+        materialized='incremental',
+        sql_where='TRUE',
+        unique_key='event_id'
+    )
+}}
+
 with custom_events as (
 
-    select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
+    select * from {{ ref('parsely_all_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
     where action not in {{ var('parsely:actions') }} and action is not null
 
 ),
