@@ -10,7 +10,7 @@
 
 with error_events as (
 
-    select * from {{ ref('parsely_all_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
+    select * from {{ ref('parsely_all_events') }}
     where action is null
 
 )
@@ -21,7 +21,7 @@ select
     -- metrics and counter fields
     1 as error_event_counter,
     -- derived fields
-    json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
+    {{ var('custom:extradataname') }},
     pageview_post_id,
     -- standard fields
     action	,

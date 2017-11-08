@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         sql_where='TRUE',
-        unique_key='pageview_incremental_key'
+        unique_key='event_id'
     )
 }}
 
@@ -35,7 +35,6 @@ select
          ts_session_current
       ORDER BY ts_action desc) AS next_pageview_ts_action,
 --  hash keys
-    md5(apikey || '_' || session_id || '_' || visitor_site_id || '_' || pageview_post_id || '_' || referrer || '_' || ts_session_current) as pageview_key,
-    md5(apikey || '_' || session_id || '_' || visitor_site_id || '_' || pageview_post_id || '_' || referrer || '_' || ts_session_current || '_' || ts_action) as pageview_incremental_key
+    pageview_key
 from {{ref('parsely_base_events')}}
 where action in ('pageview')

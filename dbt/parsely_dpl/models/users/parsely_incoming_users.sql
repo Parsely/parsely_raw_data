@@ -2,6 +2,11 @@
 -- includes visitor type, returning, new, subscribers, etc
 -- first login, last login, etc
 
+{{
+    config(
+        materialized='ephemeral'
+    )
+}}
 
 with incoming_users_pageviews as (
   select

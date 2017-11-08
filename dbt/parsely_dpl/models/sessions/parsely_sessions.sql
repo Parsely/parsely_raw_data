@@ -30,7 +30,7 @@ with session_metrics as (
 session_xf as (
   select distinct
   --  id
-      apikey || '_' || session_id || '_' || visitor_site_id || '_' || session_timestamp as parsely_session_id,
+      parsely_session_id,
   --  session user dimensions
       user_type as session_user_type,
       user_engagement_level as session_user_engagement_level,
@@ -95,4 +95,5 @@ session_xf as (
 select
   *
 from session_xf
-left join session_metrics using (apikey, session_id, visitor_site_id, session_timestamp)
+left join session_metrics using
+  (apikey, session_id, visitor_site_id, session_timestamp, parsely_session_id)

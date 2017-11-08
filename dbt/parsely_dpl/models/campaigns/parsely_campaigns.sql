@@ -11,7 +11,7 @@
 
 with incoming_campaigns as (
   select
-    utm_campaign || '_' || utm_medium || '_' || utm_source || '_' || utm_term || '_' || utm_content as utm_id,
+    utm_id,
     utm_campaign,
     utm_medium,
     utm_source,
@@ -38,7 +38,6 @@ relevant_existing as (
 -- left join fields from old data: min_tstamp
 unioned as (
 
-    -- combined pageviews and videostarts
     select
       *
     from incoming_campaigns
@@ -82,5 +81,5 @@ merged as (
 {% endif %}
 
 select
-    * --and derviced fields
+    *
 from merged

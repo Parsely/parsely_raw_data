@@ -12,64 +12,24 @@
 
 with pageview_events as (
 
-    select * from {{ ref('parsely_base_events') }} --finds parsely_base_events based on profiles.yml - also this tells dpl that there is a dependency from this file to parsely_base_events
-    where action in ('pageview', 'heartbeat')
-
+    select * from {{ ref('parsely_pageview_engagedtime') }}
 ),
 
 -- derived fields
 publish_read_time_xf as (
     select
         event_id,
-        (TIMESTAMP 'epoch' + left(metadata_pub_date_tmsp,10)::bigint * INTERVAL '1 Second ') as publish_time,
-        (TIMESTAMP 'epoch' + left(timestamp_info_nginx_ms,10)::bigint * INTERVAL '1 Second ') as read_time
-
+        (TIMESTAMP 'epoch'
+          + left(metadata_pub_date_tmsp,10)::bigint
+          * INTERVAL '1 Second ') as publish_time,
+        (TIMESTAMP 'epoch'
+          + left(timestamp_info_nginx_ms,10)::bigint
+          * INTERVAL '1 Second ') as read_time
     from pageview_events
 
-),
-/*
--- aggregating engaged time
-engaged_xf_old as (
-
-  select
-      apikey,
-      session_id,
-      visitor_site_id,
-      pageview_post_id,
-      referrer,
-      ts_session_current,
---      count(distinct pageview_key) as engaged_denominator,
-      sum(engaged_time_inc) as engaged_time
-  from pageview_events hb
-  left join {{ref('parsely_parent_pageview_keys')}} pv using (apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current)
-  where action = 'heartbeat' and hb.ts_action >= pv.ts_action and (case when pv.next_pageview_ts_action is not null then hb.ts_action < pv.next_pageview_ts_action else true end)
-  group by apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current
-),*/
--- aggregating engaged time
-engaged_xf as (
-
-  select
-      pv.event_id,
---      count(distinct pageview_key) as engaged_denominator,
-      sum(engaged_time_inc) as engaged_time
-  from pageview_events hb
-  left join {{ref('parsely_parent_pageview_keys')}} pv using (apikey, session_id, visitor_site_id, pageview_post_id, referrer, ts_session_current)
-  where action = 'heartbeat' and hb.ts_action >= pv.ts_action and (case when pv.next_pageview_ts_action is not null then hb.ts_action < pv.next_pageview_ts_action else true end)
-  group by pv.event_id
-),
-
-video_xf as (
-  select
-    pageview_key,
-    sum(video_engaged_time) as video_engaged_time,
-    sum(videostart_counter) as videoviews
-  from {{ref('parsely_videoviews')}}
-  group by pageview_key
 )
 
-
 select
-
     -- aggregated fields
     engaged_time,
     1 as pageview_counter,
@@ -83,6 +43,10 @@ select
     read_time,
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    -- keys
+    pageview_key,
+    parsely_session_id,
+    utm_id,
     -- standard fields
     action	,
     apikey	,
@@ -163,8 +127,8 @@ select
     timestamp_info_nginx_ms	,
     timestamp_info_override_ms	,
     timestamp_info_pixel_ms	,
-    pe.ts_action	,
-    pe.ts_session_current	,
+    ts_action	,
+    ts_session_current	,
     ts_session_last	,
     ua_browser	,
     ua_browserversion	,
@@ -175,7 +139,7 @@ select
     ua_devicetype	,
     ua_os	,
     ua_osversion	,
-    pe.url	,
+    url	,
     url_clean	,
     url_domain	,
     url_fragment	,
@@ -195,9 +159,5 @@ select
     visitor_ip	,
     visitor_network_id	,
     visitor_site_id
-  from pageview_events pe
-  left join engaged_xf using (event_id)--(apikey,session_id,visitor_site_id,pageview_post_id,referrer, ts_session_current)
+  from pageview_events
   left join publish_read_time_xf using (event_id)
-  left join {{ref('parsely_parent_pageview_keys')}} using (event_id, apikey,session_id,visitor_site_id,pageview_post_id,referrer, ts_session_current)
-  left join video_xf using (pageview_key)
-  where action = 'pageview'

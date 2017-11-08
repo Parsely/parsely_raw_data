@@ -55,12 +55,11 @@ relevant_existing as (
         eu.user_total_videoviews,
         eu.user_total_video_engaged_time
     from {{ this }} as eu
-    left join incoming_users as iu using (apikey_visitor_id, apikey, visitor_site_id, visitor_ip)
-    --where apikey_visitor_id in (select apikey_visitor_id from incoming_users)
+    left join incoming_users as iu using
+      (apikey_visitor_id, apikey, visitor_site_id, visitor_ip)
 
 ),
 
--- left join fields from old data: min_tstamp
 unioned as (
 
     -- combined pageviews and videostarts
@@ -169,7 +168,11 @@ select
     user_total_videoviews,
     user_total_video_engaged_time,
     -- derived fields
-    case when date_first_seen < date(SYSDATE) then 'Returning' else 'New' end as user_type,
-    case when user_total_pageviews>={{var('custom:loyaltyuser')}} then 'Loyalty' else 'Non-Loyalty' end as user_engagement_level,
+    case when date_first_seen < date(SYSDATE)
+      then 'Returning'
+      else 'New' end as user_type,
+    case when user_total_pageviews>={{var('custom:loyaltyuser')}}
+      then 'Loyalty'
+      else 'Non-Loyalty' end as user_engagement_level,
     DATEDIFF(day, last_timestamp, SYSDATE) as days_since_last_session
   from merged

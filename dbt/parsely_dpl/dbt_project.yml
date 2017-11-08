@@ -34,22 +34,12 @@ models:
       'parsely:events': 'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
-      'custom:excludebottraffic': 'Yes' #update to 'No' if bot traffic should be included
-      'custom:extradata': 'userType' #why does this change to usertype all lowercase when referring to the variable?
+      'custom:excludebottraffic': "'Yes'" #update to 'No' if bot traffic should be included
+      'custom:extradata': "'userType'" #why does this change to usertype all lowercase when referring to the variable?
       'custom:extradataname': 'publisher_user_type'
       'custom:actions': ''
       'custom:loyaltyuser': '30' #number of pageviews that count a user as loyalty
     base:
-#      materialized: ephemeral
+      materialized: ephemeral
       optional:
-        enabled: true
-    transform:
-    pageviews:
-    videoviews:
-    sessions:
-    users:
-      materialized: view
-    metadata:
-      materialized: view
-    errors:
-    audit:
+        enabled: false

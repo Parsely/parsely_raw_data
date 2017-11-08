@@ -12,7 +12,7 @@
 with bot_traffic as (
 
     select * from {{ ref('parsely_all_events') }}
-    where ua_browser = 'Googlebot'
+    where ua_browser = 'Googlebot' --to be updated to flag_is_bot_traffic
 
 )
 
@@ -22,7 +22,7 @@ select
     -- metrics and counter fields
     1 as bot_traffic_counter,
     -- derived fields
-    json_extract_path_text(extra_data, 'userType') as {{ var('custom:extradataname') }},
+    {{ var('custom:extradataname') }},
     pageview_post_id,
     -- standard fields
     action	,
