@@ -19,12 +19,13 @@ with session_metrics as (
       session_id,
       visitor_site_id,
       session_timestamp,
+      parsely_session_id,
       sum(pageview_counter) as pageviews,
       sum(engaged_time) as pageview_engaged_time,
       sum(videoviews) as videoviews,
       sum(video_engaged_time) as video_engaged_time
   from {{ref('parsely_pageviews')}}
-  group by apikey, session_id, visitor_site_id, session_timestamp
+  group by apikey, session_id, visitor_site_id, session_timestamp, parsely_session_id
 ),
 
 session_xf as (

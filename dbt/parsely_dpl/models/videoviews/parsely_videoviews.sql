@@ -28,7 +28,7 @@ publish_watch_time_xf as (
 
     from video_events
 
-),
+)
 
 
 
