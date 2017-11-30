@@ -31,7 +31,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   parsely:
     vars:
-      'parsely:events': 'parsely_dash_rawdata' #'parsely_rawdata'
+      'parsely:events': 'parsely_blog_rawdata' #'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
       'custom:excludebottraffic': "'Yes'" #update to 'No' if bot traffic should be included
