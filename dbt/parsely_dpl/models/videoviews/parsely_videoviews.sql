@@ -30,8 +30,6 @@ publish_watch_time_xf as (
 
 )
 
-
-
 select
     -- aggregated fields
     engaged_time as video_engaged_time,
@@ -47,6 +45,14 @@ select
     videostart_key,
     parsely_session_id,
     utm_id,
+    apikey_visitor_id,
+    -- event time fields
+    quarter,
+    month,
+    year,
+    week,
+    date_id,
+    session_date_id,
     -- standard fields
     action	,
     apikey	,

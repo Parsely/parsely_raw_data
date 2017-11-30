@@ -153,6 +153,7 @@ merged as (
 {% endif %}
 
 select
+    1 as user_counter,
     apikey,
     apikey_visitor_id,
     visitor_site_id,

@@ -20,7 +20,9 @@ with incoming_campaigns as (
     engaged_time,
     pageview_counter,
     video_engaged_time,
-    videoviews
+    videoviews,
+--  dedupe field
+    row_number() over (partition by utm_id order by ts_action) as n
   from {{ref('parsely_pageviews')}}
 ),
 
@@ -53,6 +55,7 @@ unioned as (
 merged as (
 
     select
+      n,
       utm_id,
       utm_campaign,
       utm_medium,
@@ -64,9 +67,9 @@ merged as (
       sum(video_engaged_time) as video_engaged_time,
       sum(videoviews) as videoviews
     from unioned
-    group by utm_id, utm_campaign, utm_medium, utm_source, utm_term, utm_content
+    group by n, utm_id, utm_campaign, utm_medium, utm_source, utm_term, utm_content
 
-)
+),
 
 {% else %}
 
@@ -76,10 +79,17 @@ merged as (
     select
       *
     from incoming_campaigns
-)
+),
 
 {% endif %}
 
+dedupe as (
+    select
+      *
+    from merged
+)
+
 select
-    *
-from merged
+  *
+from dedupe
+where n = 1

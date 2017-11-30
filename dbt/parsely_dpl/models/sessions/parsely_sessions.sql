@@ -15,27 +15,40 @@
 
 with session_metrics as (
   select
-      apikey,
-      session_id,
-      visitor_site_id,
-      session_timestamp,
       parsely_session_id,
       sum(pageview_counter) as pageviews,
       sum(engaged_time) as pageview_engaged_time,
       sum(videoviews) as videoviews,
       sum(video_engaged_time) as video_engaged_time
   from {{ref('parsely_pageviews')}}
-  group by apikey, session_id, visitor_site_id, session_timestamp, parsely_session_id
+  group by parsely_session_id
+),
+
+users as (
+    select
+      apikey_visitor_id,
+      user_type,
+      user_engagement_level
+    from {{ref('parsely_users')}}
 ),
 
 session_xf as (
-  select distinct
+  select  --add row number 1=1 here
   --  id
       parsely_session_id,
+      apikey_visitor_id,
   --  session user dimensions
       user_type as session_user_type,
       user_engagement_level as session_user_engagement_level,
---    dimensions
+  --  counter field
+      1 as session_counter,
+  --  session time fields
+      DATE_PART('day',ts_session_current) as session_day,
+      DATE_PART('quarter',ts_session_current) as session_quarter,
+      DATE_PART('month',ts_session_current) as session_month,
+      DATE_PART('year',ts_session_current) as session_year,
+      DATE_PART('week',ts_session_current) as session_week,
+      session_date_id,
       pv.{{ var('custom:extradataname') }},
       apikey	,
       flags_is_amp	,
@@ -90,11 +103,10 @@ session_xf as (
       visitor_network_id	,
       visitor_site_id
   from {{ref('parsely_pageviews')}} as pv
-  left join {{ref('parsely_users')}} using (apikey, visitor_site_id, visitor_ip)
+  left join users using (apikey_visitor_id)
 )
 
 select
   *
 from session_xf
-left join session_metrics using
-  (apikey, session_id, visitor_site_id, session_timestamp, parsely_session_id)
+left join session_metrics using (parsely_session_id)

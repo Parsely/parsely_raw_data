@@ -2,9 +2,7 @@
     config(
         materialized='incremental',
         sql_where = 'TRUE',
-        unique_key='event_id',
-        sort = 'event_id',
-        dist = 'event_id'
+        unique_key='event_id'
     )
 }}
 
@@ -12,4 +10,4 @@
 -- how often should this truncate?
 select distinct
   event_id
-from {{ref('parsely_all_events')}}
+from {{ ref('parsely_base_events') }}

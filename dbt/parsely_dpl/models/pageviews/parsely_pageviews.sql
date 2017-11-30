@@ -43,10 +43,19 @@ select
     read_time,
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    -- event time fields
+    day,
+    quarter,
+    month,
+    year,
+    week,
+    date_id,
+    session_date_id,
     -- keys
     pageview_key,
     parsely_session_id,
     utm_id,
+    apikey_visitor_id,
     -- standard fields
     action	,
     apikey	,
