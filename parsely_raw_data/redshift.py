@@ -29,7 +29,6 @@ def create_table(table_name="rawdata",
                  port="5439",
                  debug=False):
     """Create a Redshift table using a schema compatible with Parse.ly events
-
     :param table_name: The Redshift table name to use for creation
     :type host: str
     :param host: The Redshift host on which to create the table
@@ -66,7 +65,6 @@ def copy_from_s3(network,
                  secret_access_key="",
                  debug=False):
     """Use the Redshift COPY command to copy event data from S3
-
     :param network: The Parse.ly network for which to copy data (eg
         "parsely-blog")
     :type network: str

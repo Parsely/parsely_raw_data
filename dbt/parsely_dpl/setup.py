@@ -49,3 +49,6 @@ def main():
         #run dbt command
         #./dbt run --models base.*+
         dbt.main.main(models="base.*+")
+
+if __name__ == "__main__":
+    main()

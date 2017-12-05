@@ -1,3 +1,4 @@
+
 from __future__ import print_function
 
 import json
@@ -6,13 +7,11 @@ from tabulate import tabulate
 
 """
 Data Pipeline event schema DSL has this form:
-
     {"key": "action",     # key or column
      "ex": "pageview",    # example value
      "type": str,         # 'abstract' type
      "size": 256,         # rough size/length of field
      "req": True}         # is the field required?
-
 Those are listed below, and then a number of functions
 export these to example record formats, BigQuery/Redshift DDLs,
 and documentation in Markdown format.
