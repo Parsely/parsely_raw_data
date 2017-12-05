@@ -1,5 +1,20 @@
 
-with dedupe as (
+with new_events as (
+
+    select *
+    from {{ ref('parsely_rawdata') }}
+
+    {% if adapter.already_exists(this.schema, this.name) %}
+    where insert_timestamp > (
+        select coalesce(max(t.insert_timestamp), '0001-01-01') from {{ this }} as t
+    )
+    {% endif %}
+
+
+),
+
+
+dedupe as (
   select
       *,
   --  event action dates and times
@@ -53,7 +68,7 @@ with dedupe as (
         coalesce(apikey,'') || '_' ||
         coalesce(visitor_ip,'') || '_' ||
         coalesce(visitor_site_id,''))           as apikey_visitor_id
-  from {{ var('parsely:events') }}
+  from new_events
 )
 
 select

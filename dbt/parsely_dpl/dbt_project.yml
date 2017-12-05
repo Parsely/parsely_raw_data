@@ -31,15 +31,21 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   parsely:
     vars:
-      'parsely:events': 'parsely_blog_rawdata' #'parsely_rawdata'
+      'parsely:events': 'parsely_blog_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
-      'custom:excludebottraffic': "'Yes'" #update to 'No' if bot traffic should be included
+      'custom:excludebottraffic': true #update to 'false' if bot traffic should be included
       'custom:extradata': "'_customer_apikey'" #"'userType'" #why does this change to usertype all lowercase when referring to the variable?
       'custom:extradataname': 'customer_apikey' #'publisher_user_type'
       'custom:actions': ''
       'custom:loyaltyuser': '30' #number of pageviews that count a user as loyalty
+      'etl:keep_rawdata': 'Yes'
     base:
       materialized: view
       optional:
         enabled: false
+
+
+on-run-end:
+    - "{% if var('custom:excludebottraffic') %} truncate table {{ target.schema }}.parsely_rawdata {% else %} select 1 {% endif %}"
+    - "truncate table '{{var("parsely:events")}}'""'
