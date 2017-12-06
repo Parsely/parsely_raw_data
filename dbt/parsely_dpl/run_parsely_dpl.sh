@@ -1,0 +1,1 @@
+dbt run --models base.*+

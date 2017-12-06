@@ -7,7 +7,7 @@ version: '0.0.1'
 
 # This setting configures which "profile" dbt uses for this project. Profiles contain
 # database connection information, and should be configured in the  ~/.dbt/profiles.yml file
-profile: 'parsely_blog' #'default'
+profile: 'parsely_dash' #'default'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that source models can be found
@@ -31,15 +31,15 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   parsely:
     vars:
-      'parsely:events': 'parsely_blog_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
+      'parsely:events': 'parsely_dash_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
-      'custom:excludebottraffic': true #update to 'false' if bot traffic should be included
+      'custom:excludebottraffic': false #update to 'false' if bot traffic should be included
       'custom:extradata': "'_customer_apikey'" #"'userType'" #why does this change to usertype all lowercase when referring to the variable?
       'custom:extradataname': 'customer_apikey' #'publisher_user_type'
       'custom:actions': ''
       'custom:loyaltyuser': '30' #number of pageviews that count a user as loyalty
-      'etl:keep_rawdata': 'Yes'
+      'etl:keep_rawdata': true
     base:
       materialized: view
       optional:
@@ -47,5 +47,5 @@ models:
 
 
 on-run-end:
-    - "{% if var('custom:excludebottraffic') %} truncate table {{ target.schema }}.parsely_rawdata {% else %} select 1 {% endif %}"
-    - "truncate table '{{var("parsely:events")}}'""'
+    - "{% if var('etl:keep_rawdata') %} truncate table {{ target.schema }}.parsely_rawdata {% else %} select 1 {% endif %}"
+    - "truncate table {{var('parsely:events')}}"
