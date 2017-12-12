@@ -7,7 +7,7 @@ version: '0.0.1'
 
 # This setting configures which "profile" dbt uses for this project. Profiles contain
 # database connection information, and should be configured in the  ~/.dbt/profiles.yml file
-profile: 'parsely_dash' #'default'
+profile: 'parsely_blog' #'default'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that source models can be found
@@ -31,7 +31,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   parsely:
     vars:
-      'parsely:events': 'parsely_dash_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
+      'parsely:events': 'parsely_blog_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
       'parsely:timezone': 'America/New_York'
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
       'custom:excludebottraffic': false #update to 'false' if bot traffic should be included
@@ -45,7 +45,7 @@ models:
       optional:
         enabled: false
 
-
 on-run-end:
-    - "{% if var('etl:keep_rawdata') %} truncate table {{ target.schema }}.parsely_rawdata {% else %} select 1 {% endif %}"
+    - "{% if var('etl:keep_rawdata') %} truncate table {{ target.schema }}.parsely_all_events {% else %} select 1 {% endif %}"
     - "truncate table {{var('parsely:events')}}"
+    - "truncate table {{ target.schema }}.parsely_rawdata"

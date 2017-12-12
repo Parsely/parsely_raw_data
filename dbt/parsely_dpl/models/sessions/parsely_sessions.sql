@@ -16,11 +16,11 @@
 with session_metrics as (
   select
       parsely_session_id,
-      sum(pageview_counter) as pageviews,
+      sum(pageviews) as pageviews,
       sum(engaged_time) as pageview_engaged_time,
       sum(videoviews) as videoviews,
       sum(video_engaged_time) as video_engaged_time
-  from {{ref('parsely_pageviews')}}
+  from {{ref('parsely_pageviews_sessionized')}}
   group by parsely_session_id
 ),
 
@@ -43,11 +43,11 @@ session_xf as (
   --  counter field
       1 as session_counter,
   --  session time fields
-      DATE_PART('day',ts_session_current) as session_day,
-      DATE_PART('quarter',ts_session_current) as session_quarter,
-      DATE_PART('month',ts_session_current) as session_month,
-      DATE_PART('year',ts_session_current) as session_year,
-      DATE_PART('week',ts_session_current) as session_week,
+      session_day,
+      session_quarter,
+      session_month,
+      session_year,
+      session_week,
       session_date_id,
       pv.{{ var('custom:extradataname') }},
       apikey	,
@@ -102,7 +102,7 @@ session_xf as (
       visitor_ip	,
       visitor_network_id	,
       visitor_site_id
-  from {{ref('parsely_pageviews')}} as pv
+  from {{ref('parsely_pageviews_sessionized')}} as pv
   left join users using (apikey_visitor_id)
 )
 

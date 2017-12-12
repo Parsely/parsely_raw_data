@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='incremental',
+        sql_where = 'TRUE',
+        unique_key='event_id'
+    )
+}}
 
 with new_events as (
 
@@ -9,7 +16,6 @@ with new_events as (
         select coalesce(max(t.insert_timestamp), '0001-01-01') from {{ this }} as t
     )
     {% endif %}
-
 
 ),
 
@@ -24,10 +30,6 @@ dedupe as (
       DATE_PART('year',ts_action) as year,
       DATE_PART('week',ts_action) as week,
       (DATE_PART('y', ts_action)*10000+DATE_PART('mon', ts_action)*100+DATE_PART('day', ts_action))::int AS date_id,
-  --    DATE_PART('h',ts_action) as hour,
-  --    DATE_PART('m',ts_action) as minute,
-  --    DATE_PART('s',ts_action) as second,
-  --  other date IDs for joining to the calendar dimension
       (DATE_PART('y', ts_session_current)*10000+DATE_PART('mon', ts_session_current)*100+DATE_PART('day', ts_session_current))::int AS session_date_id,
   --  transformed fields
       coalesce(metadata_canonical_url,url) as pageview_post_id,
@@ -36,6 +38,9 @@ dedupe as (
           {{var('custom:extradata')}})     as {{var('custom:extradataname')}},
   --  dedupe field as we can receive duplicate event_ids that can be excluded
       row_number() over (partition by event_id order by ts_action) as n,
+  --  counter fields
+      case when action = 'pageview' then 1 else 0 end as pageview_counter,
+      case when action = 'videostart' then 1 else 0 end as videostart_counter,
   --  hash identifier fields
       md5(
         coalesce(apikey,'') || '_' ||

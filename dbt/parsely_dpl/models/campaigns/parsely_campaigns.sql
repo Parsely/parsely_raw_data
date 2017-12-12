@@ -18,12 +18,12 @@ with incoming_campaigns as (
     utm_term,
     utm_content,
     engaged_time,
-    pageview_counter,
+    pageviews,
     video_engaged_time,
     videoviews,
 --  dedupe field
-    row_number() over (partition by utm_id order by ts_action) as n
-  from {{ref('parsely_pageviews')}}
+    row_number() over (partition by utm_id order by ts_session_current) as n
+  from {{ref('parsely_pageviews_sessionized')}}
 ),
 
 {%if adapter.already_exists(this.schema,this.name)%}
@@ -63,7 +63,7 @@ merged as (
       utm_term,
       utm_content,
       sum(engaged_time) as engaged_time,
-      sum(pageview_counter) as pageview_counter,
+      sum(pageviews) as pageviews,
       sum(video_engaged_time) as video_engaged_time,
       sum(videoviews) as videoviews
     from unioned
