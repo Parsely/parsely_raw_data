@@ -17,7 +17,7 @@ export these to example record formats, BigQuery/Redshift DDLs,
 and documentation in Markdown format.
 """
 SCHEMA = [
-    {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
+    {"key": "action", "ex": "pageview", "type": str, "size": 256},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
     {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256},
     {"key": "display", "ex": True, "type": bool},
