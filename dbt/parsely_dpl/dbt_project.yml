@@ -43,7 +43,7 @@ models:
       'custom:deepreadtime': '40'  #time in seconds where engaged time greater than this amount is considered a 'deep read'
       'custom:videoskimtime': '10' #time in seconds where video engaged time less than this amount is considered a 'skim'
       'custom:videodeepwatchtime': '60'  #time in seconds where video engaged time greater than this amount is considered a 'deep watch'
-      'etl:keep_rawdata': true
+      'etl:keep_rawdata': false
     base:
       materialized: view
       optional:
@@ -51,5 +51,5 @@ models:
 
 on-run-end:
      - "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{ target.schema }}.parsely_all_events {% endif %}"
+#     - "truncate table {{ target.schema }}.parsely_rawdata"
 #    - "truncate table {{var('parsely:events')}}"
-#    - "truncate table {{ target.schema }}.parsely_rawdata"
