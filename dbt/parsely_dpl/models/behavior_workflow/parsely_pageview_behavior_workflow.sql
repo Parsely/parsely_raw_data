@@ -39,6 +39,10 @@ select
     datediff(hour, publish_time, read_time) as hours_since_publish,
     datediff(day, publish_time, read_time) as days_since_publish,
     datediff(week, publish_time, read_time) as weeks_since_publish,
+    case
+      when engaged_time > {{ var('custom:deepreadtime') }} then 'Deep Read'
+      when engaged_time > {{ var('custom:skimtime') }} then 'Read'
+      else 'Skim' end as read_category,
     publish_time,
     read_time,
     {{ var('custom:extradataname') }},

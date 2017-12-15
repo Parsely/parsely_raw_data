@@ -38,6 +38,14 @@ dedupe as (
     metadata_title	,
     metadata_urls	,
     url,
+    case
+     when metadata_full_content_word_count >= 4000 then '4,000 or Above'
+     when metadata_full_content_word_count >= 3000 then '3,000 - 3,999'
+     when metadata_full_content_word_count >= 2000 then '2,000 - 2,999'
+     when metadata_full_content_word_count >= 1000 then '1,000 - 1,999'
+     when metadata_full_content_word_count >= 500 then '500 - 999'
+     when metadata_full_content_word_count >= 100 then '100 - 499'
+     else '< 100' end as word_count_buckets,
     row_number() over (partition by pageview_post_id order by ts_action) as n
   from {{ref('parsely_base_events')}}
   inner join most_recent_incoming_posts using (pageview_post_id, ts_action)

@@ -15,7 +15,6 @@ with incoming_users_pageviews as (
       visitor_ip,
       --custom fields
       apikey_visitor_id,
-      {{ var('custom:extradataname') }},
       -- metrics
       max(ts_session_current) as last_timestamp,
       sum(pageviews) as user_total_pageviews,
@@ -23,7 +22,7 @@ with incoming_users_pageviews as (
       0 as user_total_videoviews,
       0 as user_total_video_engaged_time
   from {{ ref('parsely_pageviews_sessionized') }}
-  group by apikey, visitor_site_id, visitor_ip, apikey_visitor_id, {{ var('custom:extradataname') }}
+  group by 1,2,3,4
 ),
 
 incoming_users_videostarts as (
@@ -33,7 +32,6 @@ incoming_users_videostarts as (
       visitor_ip,
       --custom fields
       apikey_visitor_id,
-      {{ var('custom:extradataname') }},
       -- metrics
       max(ts_session_current) as last_timestamp,
       0 as user_total_pageviews,
@@ -41,7 +39,7 @@ incoming_users_videostarts as (
       sum(videoviews) as user_total_videoviews,
       sum(video_engaged_time) as user_total_video_engaged_time
   from {{ ref('parsely_videoviews_sessionized') }}
-  group by apikey, visitor_site_id, visitor_ip,   apikey_visitor_id, {{ var('custom:extradataname') }}
+  group by 1,2,3,4
 )
 
 select * from incoming_users_pageviews

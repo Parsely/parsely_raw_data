@@ -38,6 +38,10 @@ select
     datediff(hour, publish_time, watch_time) as hours_since_publish,
     datediff(day, publish_time, watch_time) as days_since_publish,
     datediff(week, publish_time, watch_time) as weeks_since_publish,
+    case
+      when engaged_time > {{ var('custom:videodeepwatchtime') }} then 'Deep Watch'
+      when engaged_time > {{ var('custom:videoskimtime') }} then 'Watch'
+      else 'Skim' end as watch_category,
     publish_time,
     watch_time,
     {{ var('custom:extradataname') }},

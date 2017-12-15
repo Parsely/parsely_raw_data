@@ -3,6 +3,8 @@ with incoming_videoviews_aggr as (
   SELECT
     sum(engaged_time_inc) as video_engaged_time,
     sum(videostart_counter) as videoviews,
+    case when sum(videostart_counter) = 0 then 0 else
+       sum(engaged_time_inc)/sum(videostart_counter) end as avg_video_engaged_time,
     videostart_key
   FROM  {{ ref('parsely_base_events') }}
   where action in ('videostart','vheartbeat')
@@ -140,9 +142,14 @@ dedupe_videoviews_sessionized as (
 select
     video_engaged_time,
     videoviews,
+    avg_video_engaged_time,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    case
+      when avg_video_engaged_time > {{ var('custom:videodeepwatchtime') }} then 'Deep Watch'
+      when avg_video_engaged_time > {{ var('custom:videoskimtime') }} then 'Watch'
+      else 'Skim' end as watch_category,
     -- event time fields
     DATE_PART('day',ts_session_current) as session_day,
     DATE_PART('quarter',ts_session_current) as session_quarter,

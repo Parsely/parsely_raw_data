@@ -49,6 +49,8 @@ merged_aggr as (
     select
       sum(engaged_time) as engaged_time_unioned,
       sum(pageviews) as pageviews_unioned,
+      case when sum(pageviews) = 0 then 0 else
+         sum(engaged_time)/sum(pageviews) end as avg_engaged_time_unioned,
       sum(video_engaged_time) as video_engaged_time_unioned,
       sum(videoviews) as videoviews_unioned,
       pageview_key
@@ -60,11 +62,16 @@ merged as (
     SELECT
     engaged_time_unioned as engaged_time,
     pageviews_unioned as pageviews,
+    avg_engaged_time_unioned as avg_engaged_time,
     video_engaged_time_unioned as video_engaged_time,
     videoviews_unioned as videoviews,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    case
+      when engaged_time_unioned > {{ var('custom:deepreadtime') }} then 'Deep Read'
+      when engaged_time_unioned > {{ var('custom:skimtime') }} then 'Read'
+      else 'Skim' end as read_category,
     -- event time fields
     session_day,
     session_quarter,

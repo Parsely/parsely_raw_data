@@ -3,6 +3,8 @@ with incoming_pageviews_aggr as (
   SELECT
     sum(engaged_time_inc) as engaged_time,
     sum(pageview_counter) as pageviews,
+    case when sum(pageview_counter) = 0 then 0 else
+       sum(engaged_time_inc)/sum(pageview_counter) end as avg_engaged_time,
     pageview_key
   FROM  {{ ref('parsely_base_events') }}
   where action in ('pageview','heartbeat')
@@ -150,11 +152,16 @@ dedupe_pageviews_sessionized as (
 select
     engaged_time,
     pageviews,
+    avg_engaged_time,
     video_engaged_time,
     videoviews,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    case
+      when avg_engaged_time > {{ var('custom:deepreadtime') }} then 'Deep Read'
+      when avg_engaged_time > {{ var('custom:skimtime') }} then 'Read'
+      else 'Skim' end as read_category,
     -- event time fields
     DATE_PART('day',ts_session_current) as session_day,
     DATE_PART('quarter',ts_session_current) as session_quarter,
