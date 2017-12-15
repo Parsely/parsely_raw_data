@@ -22,13 +22,6 @@ with incoming_sessions as (
 
 {%if adapter.already_exists(this.schema,this.name)%}
 
-relevant_existing as (
-  select
-    *
-  from {{ this }}
-  where parsely_session_id in (select parsely_session_id from incoming_sessions)
-),
-
 relevant_existing_entry as (
 
     select
@@ -185,7 +178,7 @@ unioned as (
         visitor_network_id	,
         visitor_site_id,
         n
-    from relevant_existing id
+    from incoming_sessions id
     join relevant_existing_entry entry using (parsely_session_id)
     join relevant_existing_exit exit using (parsely_session_id)
 ),
