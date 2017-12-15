@@ -179,8 +179,8 @@ unioned as (
         visitor_site_id,
         n
     from incoming_sessions id
-    join relevant_existing_entry entry using (parsely_session_id)
-    join relevant_existing_exit exit using (parsely_session_id)
+    left join relevant_existing_entry entry using (parsely_session_id)
+    left join relevant_existing_exit exit using (parsely_session_id)
 ),
 
 merged as (
