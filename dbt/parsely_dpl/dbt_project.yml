@@ -43,7 +43,7 @@ models:
       'custom:deepreadtime': '40'  #time in seconds where engaged time greater than this amount is considered a 'deep read'
       'custom:videoskimtime': '15' #time in seconds where video engaged time less than this amount is considered a 'skim'
       'custom:videodeepwatchtime': '60'  #time in seconds where video engaged time greater than this amount is considered a 'deep watch'
-      'etl:keep_rawdata': false
+      'etl:keep_rawdata': true
     base:
       materialized: view
       optional:
