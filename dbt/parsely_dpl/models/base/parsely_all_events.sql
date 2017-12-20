@@ -28,10 +28,10 @@ timezone_convert as (
         convert_timezone({{ var('parsely:timezone') }}, ts_session_current) as ts_session_current_tz,
 --      ts_session_last
         convert_timezone({{ var('parsely:timezone') }}, ts_session_last) as ts_session_last_tz,
---      meatadata_pub_date_tmsp
+--      metadata_pub_date_tmsp
         convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
-          + left(meatadata_pub_date_tmsp,10)::bigint
-          * INTERVAL '1 Second ')) as meatadata_pub_date_tmsp_tz,
+          + left(metadata_pub_date_tmsp,10)::bigint
+          * INTERVAL '1 Second ')) as metadata_pub_date_tmsp_tz,
 --      metadata_save_date_tmsp
         convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
           + left(metadata_save_date_tmsp,10)::bigint
