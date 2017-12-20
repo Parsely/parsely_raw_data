@@ -1,13 +1,19 @@
 
-with incoming_pageviews_aggr as (
+with pageview_events as (
+    select
+      *
+      FROM  {{ ref('parsely_base_events') }}
+      where action in ('pageview','heartbeat')
+),
+
+incoming_pageviews_aggr as (
   SELECT
     sum(engaged_time_inc) as engaged_time,
     sum(pageview_counter) as pageviews,
     case when sum(pageview_counter) = 0 then 0 else
        sum(engaged_time_inc)/sum(pageview_counter) end as avg_engaged_time,
     pageview_key
-  FROM  {{ ref('parsely_base_events') }}
-  where action in ('pageview','heartbeat')
+  FROM  pageview_events
   group by pageview_key
 ),
 
@@ -22,18 +28,40 @@ incoming_videoviews_aggr as (
   group by pageview_key
 ),
 
+publish_read_time_xf as (
+    select
+        event_id,
+        (TIMESTAMP 'epoch'
+          + left(metadata_pub_date_tmsp_tz,10)::bigint
+          * INTERVAL '1 Second ') as publish_time,
+        (TIMESTAMP 'epoch'
+          + left(timestamp_info_nginx_ms_tz,10)::bigint
+          * INTERVAL '1 Second ') as read_time
+    from pageview_events
+
+),
+
 dedupe_pageviews_sessionized as (
   select
     row_number() over (partition by pageview_key order by ts_action) as n,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
+    publish_time,
+    read_time,
     -- event time fields
-    DATE_PART('day',ts_session_current) as session_day,
-    DATE_PART('quarter',ts_session_current) as session_quarter,
-    DATE_PART('month',ts_session_current) as session_month,
-    DATE_PART('year',ts_session_current) as session_year,
-    DATE_PART('week',ts_session_current) as session_week,
+    DATE_PART('day',ts_session_current_tz) as session_day,
+    DATE_PART('quarter',ts_session_current_tz) as session_quarter,
+    DATE_PART('month',ts_session_current_tz) as session_month,
+    DATE_PART('year',ts_session_current_tz) as session_year,
+    DATE_PART('week',ts_session_current_tz) as session_week,
     session_date_id,
     -- keys
     pageview_key,
@@ -145,8 +173,8 @@ dedupe_pageviews_sessionized as (
     visitor_ip,
     visitor_network_id,
     visitor_site_id
-  from {{ ref('parsely_base_events') }}
-  where action in ('pageview','heartbeat')
+  from pageview_events
+  left join publish_read_time_xf using (event_id)
 )
 
 select
@@ -158,10 +186,20 @@ select
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
     case
       when avg_engaged_time > {{ var('custom:deepreadtime') }} then 'Deep Read'
       when avg_engaged_time > {{ var('custom:skimtime') }} then 'Read'
       else 'Skim' end as read_category,
+    datediff(hour, publish_time, read_time) as hours_since_publish,
+    datediff(day, publish_time, read_time) as days_since_publish,
+    datediff(week, publish_time, read_time) as weeks_since_publish,
     -- event time fields
     DATE_PART('day',ts_session_current) as session_day,
     DATE_PART('quarter',ts_session_current) as session_quarter,

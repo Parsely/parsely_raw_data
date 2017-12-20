@@ -68,10 +68,17 @@ merged as (
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
-    case
-      when engaged_time_unioned > {{ var('custom:deepreadtime') }} then 'Deep Read'
-      when engaged_time_unioned > {{ var('custom:skimtime') }} then 'Read'
-      else 'Skim' end as read_category,
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
+    read_category,
+    hours_since_publish,
+    days_since_publish,
+    weeks_since_publish,
     -- event time fields
     session_day,
     session_quarter,

@@ -1,14 +1,35 @@
 
-with incoming_videoviews_aggr as (
+with videoview_events as (
+  SELECT
+    *
+  FROM  {{ ref('parsely_base_events') }}
+  where action in ('videostart','vheartbeat')
+),
+
+
+incoming_videoviews_aggr as (
   SELECT
     sum(engaged_time_inc) as video_engaged_time,
     sum(videostart_counter) as videoviews,
     case when sum(videostart_counter) = 0 then 0 else
        sum(engaged_time_inc)/sum(videostart_counter) end as avg_video_engaged_time,
     videostart_key
-  FROM  {{ ref('parsely_base_events') }}
-  where action in ('videostart','vheartbeat')
+  FROM videoview_events
   group by videostart_key
+),
+
+publish_watch_time_xf as (
+    select
+        event_id,
+        (TIMESTAMP 'epoch'
+          + left(metadata_pub_date_tmsp_tz,10)::bigint
+          * INTERVAL '1 Second ') as publish_time,
+        (TIMESTAMP 'epoch'
+          + left(timestamp_info_nginx_ms_tz,10)::bigint
+          * INTERVAL '1 Second ') as watch_time
+
+    from video_events
+
 ),
 
 dedupe_videoviews_sessionized as (
@@ -17,13 +38,23 @@ dedupe_videoviews_sessionized as (
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    publish_time,
+    watch_time,
     -- event time fields
-    DATE_PART('day',ts_session_current) as session_day,
-    DATE_PART('quarter',ts_session_current) as session_quarter,
-    DATE_PART('month',ts_session_current) as session_month,
-    DATE_PART('year',ts_session_current) as session_year,
-    DATE_PART('week',ts_session_current) as session_week,
+    DATE_PART('day',ts_session_current_tz) as session_day,
+    DATE_PART('quarter',ts_session_current_tz) as session_quarter,
+    DATE_PART('month',ts_session_current_tz) as session_month,
+    DATE_PART('year',ts_session_current_tz) as session_year,
+    DATE_PART('week',ts_session_current_tz) as session_week,
     session_date_id,
+    -- derived fields
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
     -- keys
     pageview_key,
     videostart_key,
@@ -135,8 +166,8 @@ dedupe_videoviews_sessionized as (
     visitor_ip,
     visitor_network_id,
     visitor_site_id
-  from {{ ref('parsely_base_events') }}
-  where action in ('videostart','vheartbeat')
+  from videoview_events
+  left join publish_watch_time_xf using (event_id)
 )
 
 select
@@ -146,17 +177,30 @@ select
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    publish_time,
+    watch_time,
     case
       when avg_video_engaged_time > {{ var('custom:videodeepwatchtime') }} then 'Deep Watch'
       when avg_video_engaged_time > {{ var('custom:videoskimtime') }} then 'Watch'
       else 'Skim' end as watch_category,
+    datediff(hour, publish_time, watch_time) as hours_since_publish,
+    datediff(day, publish_time, watch_time) as days_since_publish,
+    datediff(week, publish_time, watch_time) as weeks_since_publish,
     -- event time fields
-    DATE_PART('day',ts_session_current) as session_day,
-    DATE_PART('quarter',ts_session_current) as session_quarter,
-    DATE_PART('month',ts_session_current) as session_month,
-    DATE_PART('year',ts_session_current) as session_year,
-    DATE_PART('week',ts_session_current) as session_week,
+    DATE_PART('day',ts_session_current_tz) as session_day,
+    DATE_PART('quarter',ts_session_current_tz) as session_quarter,
+    DATE_PART('month',ts_session_current_tz) as session_month,
+    DATE_PART('year',ts_session_current_tz) as session_year,
+    DATE_PART('week',ts_session_current_tz) as session_week,
     session_date_id,
+    -- derived fields
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
     -- keys
     pageview_key,
     videostart_key,

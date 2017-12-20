@@ -63,10 +63,12 @@ merged as (
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
-    case
-      when avg_video_engaged_time_unioned > {{ var('custom:videodeepwatchtime') }} then 'Deep Watch'
-      when avg_video_engaged_time_unioned > {{ var('custom:videoskimtime') }} then 'Watch'
-      else 'Skim' end as watch_category,
+    watch_category,
+    publish_time,
+    watch_time,
+    hours_since_publish,
+    days_since_publish,
+    weeks_since_publish,
     -- event time fields
     session_day,
     session_quarter,
@@ -74,6 +76,14 @@ merged as (
     session_year,
     session_week,
     session_date_id,
+    -- derived fields
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    meatadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
     -- keys
     pageview_key,
     videostart_key,

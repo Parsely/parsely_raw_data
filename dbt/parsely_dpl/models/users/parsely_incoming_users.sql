@@ -16,7 +16,7 @@ with incoming_users_pageviews as (
       --custom fields
       apikey_visitor_id,
       -- metrics
-      max(ts_session_current) as last_timestamp,
+      max(ts_session_current_tz) as last_timestamp,
       sum(pageviews) as user_total_pageviews,
       sum(engaged_time) as user_total_engaged_time,
       0 as user_total_videoviews,
@@ -33,7 +33,7 @@ incoming_users_videostarts as (
       --custom fields
       apikey_visitor_id,
       -- metrics
-      max(ts_session_current) as last_timestamp,
+      max(ts_session_current_tz) as last_timestamp,
       0 as user_total_pageviews,
       0 as user_total_engaged_time,
       sum(videoviews) as user_total_videoviews,

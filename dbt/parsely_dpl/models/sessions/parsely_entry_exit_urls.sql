@@ -1,8 +1,8 @@
 with sessions_time_xf as (
   select
       parsely_session_id,
-      max(ts_action) as last_ts_action,
-      min(ts_action) as first_ts_action
+      max(ts_action_tz) as last_ts_action,
+      min(ts_action_tz) as first_ts_action
   from {{ref('parsely_base_events')}}
   group by parsely_session_id
 ),
@@ -19,11 +19,11 @@ entry_url as (
     url_path as entry_url_path,
     url_query as entry_url_query,
     url_scheme as entry_url_scheme,
-    ts_action as entry_ts_action
+    ts_action_tz as entry_ts_action
   from {{ref('parsely_base_events')}} be
   inner join sessions_time_xf st
     on be.parsely_session_id = st.parsely_session_id
-    and be.ts_action = st.first_ts_action
+    and be.ts_action_tz = st.first_ts_action_tz
 ),
 
 
@@ -40,11 +40,11 @@ exit_url as (
     url_path as exit_url_path,
     url_query as exit_url_query,
     url_scheme as exit_url_scheme,
-    ts_action as exit_ts_action
+    ts_action_tz as exit_ts_action
   from {{ref('parsely_base_events')}} be
   inner join sessions_time_xf st
     on be.parsely_session_id = st.parsely_session_id
-    and be.ts_action = st.last_ts_action
+    and be.ts_action_tz = st.last_ts_action_tz
 
 )
 

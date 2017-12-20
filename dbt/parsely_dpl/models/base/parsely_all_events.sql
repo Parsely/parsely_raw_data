@@ -19,23 +19,61 @@ with new_events as (
 
 ),
 
+with timezone_convert as (
+    SELECT
+        *,
+--      ts_action
+        convert_timezone({{ var('parsely:timezone') }}, ts_action) as ts_action_tz,
+--      ts_session_current
+        convert_timezone({{ var('parsely:timezone') }}, ts_session_current) as ts_session_current_tz,
+--      ts_session_last
+        convert_timezone({{ var('parsely:timezone') }}, ts_session_last) as ts_session_last_tz,
+--      meatadata_pub_date_tmsp
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(meatadata_pub_date_tmsp,10)::bigint
+          * INTERVAL '1 Second ')) as meatadata_pub_date_tmsp_tz,
+--      metadata_save_date_tmsp
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(metadata_save_date_tmsp,10)::bigint
+          * INTERVAL '1 Second ')) as metadata_save_date_tmsp_tz,
+--      timestamp_info_nginx_ms
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(timestamp_info_nginx_ms,10)::bigint
+          * INTERVAL '1 Second ')) as timestamp_info_nginx_ms_tz,
+--      session_last_session_timestamp
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(session_last_session_timestamp,10)::bigint
+          * INTERVAL '1 Second ')) as session_last_session_timestamp_tz,
+--      session_timestamp
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(session_timestamp,10)::bigint
+          * INTERVAL '1 Second ')) as session_timestamp_tz,
+--      timestamp_info_pixel_ms
+        convert_timezone({{ var('parsely:timezone') }}, (TIMESTAMP 'epoch'
+          + left(timestamp_info_pixel_ms,10)::bigint
+          * INTERVAL '1 Second ')) as timestamp_info_pixel_ms_tz
+    from new_events
+)
+
 
 dedupe as (
   select
       *,
   --  event action dates and times
-      DATE_PART('day',ts_action) as day,
-      DATE_PART('quarter',ts_action) as quarter,
-      DATE_PART('month',ts_action) as month,
-      DATE_PART('year',ts_action) as year,
-      DATE_PART('week',ts_action) as week,
-      (DATE_PART('y', ts_action)*10000+DATE_PART('mon', ts_action)*100+DATE_PART('day', ts_action))::int AS date_id,
-      (DATE_PART('y', ts_session_current)*10000+DATE_PART('mon', ts_session_current)*100+DATE_PART('day', ts_session_current))::int AS session_date_id,
+      DATE_PART('day',ts_action_tz) as day,
+      DATE_PART('quarter',ts_action_tz) as quarter,
+      DATE_PART('month',ts_action_tz) as month,
+      DATE_PART('year',ts_action_tz) as year,
+      DATE_PART('week',ts_action_tz) as week,
+      (DATE_PART('y', ts_action_tz)*10000+DATE_PART('mon', ts_action_tz)*100+DATE_PART('day', ts_action_tz))::int AS date_id,
+      (DATE_PART('y', ts_session_current_tz)*10000+DATE_PART('mon', ts_session_current_tz)*100+DATE_PART('day', ts_session_current_tz))::int AS session_date_id,
   --  transformed fields
       coalesce(metadata_canonical_url,url) as pageview_post_id,
       json_extract_path_text(
           extra_data,
           {{var('custom:extradata')}})     as {{var('custom:extradataname')}},
+      case when referrer = 'http://facebook.com/instantarticles'
+        then true else false end as flag_is_fbia,
   --  dedupe field as we can receive duplicate event_ids that can be excluded
       row_number() over (partition by event_id order by ts_action) as n,
   --  counter fields
@@ -73,7 +111,7 @@ dedupe as (
         coalesce(apikey,'') || '_' ||
         coalesce(visitor_ip,'') || '_' ||
         coalesce(visitor_site_id,''))           as apikey_visitor_id
-  from new_events
+  from timezone_convert
 )
 
 select
