@@ -32,7 +32,7 @@ models:
   parsely:
     vars:
       'parsely:events': 'parsely_blog_rawdata' #'parsely_blog_rawdata' #'parsely_rawdata'
-      'parsely:timezone': 'America/New_York'
+      'parsely:timezone': "'America/New_York'"
       'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')" #or use parsely:actions: ['pageview', 'heartbeat', 'vheartbeat', 'videostart'] and then in a model use: ( {{ var('events') | join(", ") }} )
       'custom:excludebottraffic': false #update to 'false' if bot traffic should be included
       'custom:extradata': "'_customer_apikey'" #"'userType'" #why does this change to usertype all lowercase when referring to the variable?
