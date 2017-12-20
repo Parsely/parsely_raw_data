@@ -28,7 +28,7 @@ select
     ts_action_tz,
     ts_session_current_tz,
     ts_session_last_tz,
-    meatadata_pub_date_tmsp_tz,
+    metadata_pub_date_tmsp_tz,
     metadata_save_date_tmsp_tz,
     timestamp_info_nginx_ms_tz,
     session_last_session_timestamp_tz,

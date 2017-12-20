@@ -28,7 +28,7 @@ publish_watch_time_xf as (
           + left(timestamp_info_nginx_ms_tz,10)::bigint
           * INTERVAL '1 Second ') as watch_time
 
-    from video_events
+    from videoview_events
 
 ),
 
@@ -51,7 +51,7 @@ dedupe_videoviews_sessionized as (
     flag_is_fbia,
     ts_session_current_tz,
     ts_session_last_tz,
-    meatadata_pub_date_tmsp_tz,
+    metadata_pub_date_tmsp_tz,
     metadata_save_date_tmsp_tz,
     session_last_session_timestamp_tz,
     session_timestamp_tz,
@@ -197,7 +197,7 @@ select
     flag_is_fbia,
     ts_session_current_tz,
     ts_session_last_tz,
-    meatadata_pub_date_tmsp_tz,
+    metadata_pub_date_tmsp_tz,
     metadata_save_date_tmsp_tz,
     session_last_session_timestamp_tz,
     session_timestamp_tz,
