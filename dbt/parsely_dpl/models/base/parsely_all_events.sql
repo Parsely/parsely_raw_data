@@ -19,7 +19,7 @@ with new_events as (
 
 ),
 
-with timezone_convert as (
+timezone_convert as (
     SELECT
         *,
 --      ts_action
@@ -53,7 +53,7 @@ with timezone_convert as (
           + left(timestamp_info_pixel_ms,10)::bigint
           * INTERVAL '1 Second ')) as timestamp_info_pixel_ms_tz
     from new_events
-)
+),
 
 
 dedupe as (
