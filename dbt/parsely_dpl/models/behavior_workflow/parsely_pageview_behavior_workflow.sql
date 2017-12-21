@@ -19,12 +19,8 @@ with pageview_events as (
 publish_read_time_xf as (
     select
         event_id,
-        (TIMESTAMP 'epoch'
-          + left(metadata_pub_date_tmsp_tz,10)::bigint
-          * INTERVAL '1 Second ') as publish_time,
-        (TIMESTAMP 'epoch'
-          + left(timestamp_info_nginx_ms_tz,10)::bigint
-          * INTERVAL '1 Second ') as read_time
+        metadata_pub_date_tmsp_tz as publish_time,
+        timestamp_info_nginx_ms_tz as read_time
     from pageview_events
 
 )
