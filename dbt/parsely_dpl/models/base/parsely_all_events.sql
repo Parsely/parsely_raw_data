@@ -109,7 +109,6 @@ dedupe as (
         coalesce(session_timestamp::text,''))            as parsely_session_id,
       md5(
         coalesce(apikey,'') || '_' ||
-        coalesce(visitor_ip,'') || '_' ||
         coalesce(visitor_site_id,''))           as apikey_visitor_id
   from timezone_convert
 )

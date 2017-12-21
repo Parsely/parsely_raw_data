@@ -19,7 +19,6 @@ with incoming_users as (
       apikey,
       apikey_visitor_id,
       visitor_site_id,
-      visitor_ip,
       -- dates and times
       max(last_timestamp) as last_timestamp,
       date(min(last_timestamp)) as date_first_seen,
@@ -30,7 +29,7 @@ with incoming_users as (
       sum(user_total_videoviews) as user_total_videoviews,
       sum(user_total_video_engaged_time) as user_total_video_engaged_time
   from {{ref('parsely_incoming_users')}}
-  group by 1,2,3,4
+  group by 1,2,3
 ),
 
 {%if adapter.already_exists(this.schema,this.name)%}
@@ -41,7 +40,6 @@ relevant_existing as (
         apikey,
         apikey_visitor_id,
         visitor_site_id,
-        visitor_ip,
         -- dates and times
         eu.last_timestamp,
         eu.date_first_seen,
@@ -53,7 +51,7 @@ relevant_existing as (
         eu.user_total_video_engaged_time
     from {{ this }} as eu
     left join incoming_users as iu using
-      (apikey_visitor_id, apikey, visitor_site_id, visitor_ip)
+      (apikey_visitor_id, apikey, visitor_site_id)
 
 ),
 
@@ -64,7 +62,6 @@ unioned as (
         apikey,
         apikey_visitor_id,
         visitor_site_id,
-        visitor_ip,
         -- dates and times
         last_timestamp,
         date_first_seen,
@@ -82,7 +79,6 @@ unioned as (
         apikey,
         apikey_visitor_id,
         visitor_site_id,
-        visitor_ip,
         -- dates and times
         last_timestamp,
         date_first_seen,
@@ -102,7 +98,6 @@ merged as (
         apikey,
         apikey_visitor_id,
         visitor_site_id,
-        visitor_ip,
         -- dates and times
         max(last_timestamp) as last_timestamp,
         min(date_first_seen) as date_first_seen,
@@ -113,7 +108,7 @@ merged as (
         sum(user_total_videoviews) as user_total_videoviews,
         sum(user_total_video_engaged_time) as user_total_video_engaged_time
     from unioned
-    group by 1,2,3,4
+    group by 1,2,3
 
 
 )
@@ -127,7 +122,6 @@ merged as (
         apikey,
         apikey_visitor_id,
         visitor_site_id,
-        visitor_ip,
         -- dates and times
         max(last_timestamp) as last_timestamp,
         date(min(last_timestamp)) as date_first_seen,
@@ -138,7 +132,7 @@ merged as (
         sum(user_total_videoviews) as user_total_videoviews,
         sum(user_total_video_engaged_time) as user_total_video_engaged_time
     from incoming_users
-    group by 1,2,3,4
+    group by 1,2,3
 )
 
 {% endif %}
@@ -148,7 +142,6 @@ select
     apikey,
     apikey_visitor_id,
     visitor_site_id,
-    visitor_ip,
     -- dates and times
     last_timestamp,
     date_first_seen,
