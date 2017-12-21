@@ -23,7 +23,7 @@ entry_url as (
   from {{ref('parsely_base_events')}} be
   inner join sessions_time_xf st
     on be.parsely_session_id = st.parsely_session_id
-    and be.ts_action_tz = st.first_ts_action_tz
+    and be.ts_action_tz = st.first_ts_action
 ),
 
 
@@ -44,7 +44,7 @@ exit_url as (
   from {{ref('parsely_base_events')}} be
   inner join sessions_time_xf st
     on be.parsely_session_id = st.parsely_session_id
-    and be.ts_action_tz = st.last_ts_action_tz
+    and be.ts_action_tz = st.last_ts_action
 
 )
 
