@@ -1,1 +1,1 @@
-dbt run --models base.*+
+dbt run --models base.*+ --profiles-dir /home/annelise/.dbt/
