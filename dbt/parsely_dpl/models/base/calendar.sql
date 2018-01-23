@@ -1,4 +1,5 @@
-  SELECT
+-- Generates a standard calendar table
+SELECT
     (DATE_PART('y', date_gen.dt)*10000+DATE_PART('mon', date_gen.dt)*100+DATE_PART('day', date_gen.dt))::int AS "id",
     date_gen.dt AS "date",
     DATE_PART('y', date_gen.dt)::smallint AS "year",
@@ -33,6 +34,6 @@
       WHEN DATE_PART('dow', date_gen.dt)::smallint IN (0,6) THEN TRUE
       ELSE FALSE
       END::boolean AS "weekend_flag"
-    FROM
-    (SELECT
-      ('2050-01-01' - n)::date AS dt FROM (SELECT row_number() over () AS n FROM stl_scan LIMIT 54787)) date_gen
+FROM
+(SELECT
+  ('2050-01-01' - n)::date AS dt FROM (SELECT row_number() over () AS n FROM stl_scan LIMIT 54787)) date_gen

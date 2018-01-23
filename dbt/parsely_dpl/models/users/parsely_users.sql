@@ -10,10 +10,6 @@
     )
 }}
 
--- second time: builds temp table; deletes duplicates by unique key, inserts new data
---
-
-
 with incoming_users as (
   select
       apikey,
