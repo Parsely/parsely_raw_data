@@ -1,7 +1,5 @@
 ### Redshift dbt models for Parse.ly DPL
 
-*to do: insert final model image: https://graph.sinterdata.com *
-
 ---
 ## Parse.ly DPL DBT
 A "data-build tool" for your Parse.ly data that automates SQL table creation for your data pipeline. It creates queryable tables for things like pageviews, x, and y, and handles the incremental loading of new data from S3 to your SQL tables. By handling this setup work for you, the data-build tool reduces configuration time and lets you get started writing your own custom queries more quickly.
@@ -24,6 +22,9 @@ users
 -- parsely_raw_data/dbt/parsely_dpl/run_parsely_dpl.sh (Details in document)
 -- Run historical_script.py (details in document)
 -- Set up incremental_script.py to run on an automated schedule
+
+## Data model
+- see Parsely DPL DBT Data Flow Model.png for a visual
 
 
 ---
