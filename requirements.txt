@@ -1,4 +1,4 @@
-boto3==1.2.3
+boto3
 google-api-python-client
 psycopg2cffi-compat
 six
