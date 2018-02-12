@@ -5,7 +5,7 @@ import argparse
 import subprocess
 import os
 
-import parsely_raw_data.redshift as redshift
+import parsely_raw_data.redshift as prd_redshift
 import parsely_raw_data.utils as utils
 
 def parse_datetime_arg(arg):
