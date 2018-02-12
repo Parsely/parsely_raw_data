@@ -85,7 +85,7 @@ def incremental(network="",
 
 def main():
     commands = ['historical','incremental']
-    parser = utils.get_default_parser("Amazon Redshift utilities for Parse.ly",
+    parser = prd_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly",
                         commands=commands)
     parser.add_argument('--start_date',
                         help='The first day to process data from S3 to Redshift in the format YYYYMMDD')
