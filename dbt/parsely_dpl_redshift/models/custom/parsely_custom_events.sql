@@ -1,9 +1,5 @@
 -- 1 row per custom event
 
--- 1 row per pageview
--- sum engaged time for all heartbeats
--- metrics: pageviews, engaged time
-
 {{
     config(
         materialized='incremental',

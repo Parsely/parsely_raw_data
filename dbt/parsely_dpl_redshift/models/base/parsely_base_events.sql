@@ -1,4 +1,3 @@
-
   select
       *
   from {{ ref('parsely_all_events') }}

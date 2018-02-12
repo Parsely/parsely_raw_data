@@ -1,41 +1,95 @@
---
--- 1 row per null action event
-
 {{
     config(
         materialized='incremental',
         sql_where='TRUE',
-        unique_key='event_id'
+        unique_key='videostart_key'
     )
 }}
 
-with bot_traffic as (
+with incoming_videoviews as (
 
-    select * from {{ ref('parsely_all_events') }}
-    where ua_browser = 'Googlebot' --to be updated to flag_is_bot_traffic
+  SELECT
+    *
+  from {{ ref('parsely_incoming_videoviews') }}
 
-)
+
+),
 
 
-select
+{%if adapter.already_exists(this.schema,this.name)%}
 
-    -- metrics and counter fields
-    1 as bot_traffic_counter,
+relevant_existing as (
+
+    select
+        *
+    from {{ this }}
+    where videostart_key in (select videostart_key from incoming_videoviews)
+
+),
+
+-- left join fields from old data: min_tstamp
+unioned as (
+
+    select
+      *
+    from incoming_videoviews
+
+    union all
+
+    select
+      *
+    from relevant_existing
+
+),
+
+merged_aggr as (
+
+    select
+      sum(video_engaged_time) as engaged_time_unioned,
+      sum(videoviews) as videoviews_unioned,
+      case when sum(videoviews) = 0 then 0 else
+         sum(video_engaged_time)/sum(videoviews) end as avg_video_engaged_time_unioned,
+      videostart_key
+    from unioned
+    group by videostart_key
+),
+
+merged as (
+    SELECT
+    engaged_time_unioned as video_engaged_time,
+    videoviews_unioned as videoviews,
+    avg_video_engaged_time_unioned as avg_video_engaged_time,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
+    watch_category,
+    publish_time,
+    watch_time,
+    hours_since_publish,
+    days_since_publish,
+    weeks_since_publish,
+    -- event time fields
+    session_day,
+    session_quarter,
+    session_month,
+    session_year,
+    session_week,
+    session_date_id,
+    -- derived fields
     flag_is_fbia,
-    ts_action_tz,
     ts_session_current_tz,
     ts_session_last_tz,
     metadata_pub_date_tmsp_tz,
     metadata_save_date_tmsp_tz,
-    timestamp_info_nginx_ms_tz,
     session_last_session_timestamp_tz,
     session_timestamp_tz,
-    timestamp_info_pixel_ms_tz,
+    -- keys
+    pageview_key,
+    videostart_key,
+    parsely_session_id,
+    utm_id,
+    apikey_visitor_id,
     -- standard fields
-    action,
     apikey,
     campaign_id,
     display,
@@ -44,14 +98,12 @@ select
     display_pixel_depth,
     display_total_height,
     display_total_width,
-    engaged_time_inc,
-    event_id,
     extra_data,
     flags_is_amp,
     ip_city,
     ip_continent,
     ip_country,
-    ip_lat::FLOAT8,
+    ip_lat,
     ip_lon,
     ip_postal,
     ip_subdivision,
@@ -111,11 +163,6 @@ select
     surl_path,
     surl_query,
     surl_scheme,
-    timestamp_info,
-    timestamp_info_nginx_ms,
-    timestamp_info_override_ms,
-    timestamp_info_pixel_ms,
-    ts_action,
     ts_session_current,
     ts_session_last,
     ua_browser,
@@ -147,4 +194,22 @@ select
     visitor_ip,
     visitor_network_id,
     visitor_site_id
-  from bot_traffic
+  from incoming_videoviews
+  left join merged_aggr using (videostart_key)
+)
+
+{% else %}
+
+-- initial run, don't merge
+merged as (
+
+    select
+      *
+    from incoming_videoviews
+)
+
+{% endif %}
+
+select
+  *
+from merged

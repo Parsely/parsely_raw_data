@@ -28,6 +28,19 @@ with incoming_users as (
   group by 1,2,3
 ),
 
+rolling_loyalty_users as (
+  select
+      apikey,
+      visitor_site_id,
+      --custom fields
+      apikey_visitor_id,
+      -- metrics
+      case when sum(pageviews) >= {{var('custom:rollingloyaltyuser')}} then 'Loyalty' else 'Non Loyalty' end as Rolling_30_Day_Loyalty_User
+  from {{ ref('parsely_pageviews_sessionized') }}
+  where ts_session_current_tz > dateadd(day ,-30, CURRENT_DATE)
+  group by 1,2,3
+),
+
 {%if adapter.already_exists(this.schema,this.name)%}
 
 relevant_existing as (

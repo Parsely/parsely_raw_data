@@ -1,8 +1,4 @@
 -- 1 row per session
--- Join from the parsely_pageviews and parsely_videovideos
--- aggregated: pageviews, engaged time, videoviews, video engaged time
--- should also have session visitor type, returning, new, subscribers, etc (what was true at the time of the session)
--- metrics: sessions, pageviws, videoviews, engaged time, video watch time
 
 with session_metrics as (
   select

@@ -1,17 +1,16 @@
-
 {{
     config(
         materialized='incremental',
         sql_where='TRUE',
-        unique_key='videostart_key'
+        unique_key='pageview_key'
     )
 }}
 
-with incoming_videoviews as (
+with incoming_pageviews as (
 
   SELECT
     *
-  from {{ ref('parsely_incoming_videoviews') }}
+  from {{ ref('parsely_incoming_pageviews') }}
 
 
 ),
@@ -24,16 +23,17 @@ relevant_existing as (
     select
         *
     from {{ this }}
-    where videostart_key in (select videostart_key from incoming_videoviews)
+    where pageview_key in (select pageview_key from incoming_pageviews)
 
 ),
 
 -- left join fields from old data: min_tstamp
 unioned as (
 
+    -- combined pageviews and videostarts
     select
       *
-    from incoming_videoviews
+    from incoming_pageviews
 
     union all
 
@@ -46,26 +46,35 @@ unioned as (
 merged_aggr as (
 
     select
-      sum(video_engaged_time) as engaged_time_unioned,
+      sum(engaged_time) as engaged_time_unioned,
+      sum(pageviews) as pageviews_unioned,
+      case when sum(pageviews) = 0 then 0 else
+         sum(engaged_time)/sum(pageviews) end as avg_engaged_time_unioned,
+      sum(video_engaged_time) as video_engaged_time_unioned,
       sum(videoviews) as videoviews_unioned,
-      case when sum(videoviews) = 0 then 0 else
-         sum(video_engaged_time)/sum(videoviews) end as avg_video_engaged_time_unioned,
-      videostart_key
+      pageview_key
     from unioned
-    group by videostart_key
+    group by pageview_key
 ),
 
 merged as (
     SELECT
-    engaged_time_unioned as video_engaged_time,
+    engaged_time_unioned as engaged_time,
+    pageviews_unioned as pageviews,
+    avg_engaged_time_unioned as avg_engaged_time,
+    video_engaged_time_unioned as video_engaged_time,
     videoviews_unioned as videoviews,
-    avg_video_engaged_time_unioned as avg_video_engaged_time,
     -- derived fields
     {{ var('custom:extradataname') }},
     pageview_post_id,
-    watch_category,
-    publish_time,
-    watch_time,
+    flag_is_fbia,
+    ts_session_current_tz,
+    ts_session_last_tz,
+    metadata_pub_date_tmsp_tz,
+    metadata_save_date_tmsp_tz,
+    session_last_session_timestamp_tz,
+    session_timestamp_tz,
+    read_category,
     hours_since_publish,
     days_since_publish,
     weeks_since_publish,
@@ -76,17 +85,8 @@ merged as (
     session_year,
     session_week,
     session_date_id,
-    -- derived fields
-    flag_is_fbia,
-    ts_session_current_tz,
-    ts_session_last_tz,
-    metadata_pub_date_tmsp_tz,
-    metadata_save_date_tmsp_tz,
-    session_last_session_timestamp_tz,
-    session_timestamp_tz,
     -- keys
     pageview_key,
-    videostart_key,
     parsely_session_id,
     utm_id,
     apikey_visitor_id,
@@ -195,8 +195,8 @@ merged as (
     visitor_ip,
     visitor_network_id,
     visitor_site_id
-  from incoming_videoviews
-  left join merged_aggr using (videostart_key)
+  from incoming_pageviews
+  left join merged_aggr  using (pageview_key)
 )
 
 {% else %}
@@ -206,7 +206,7 @@ merged as (
 
     select
       *
-    from incoming_videoviews
+    from incoming_pageviews
 )
 
 {% endif %}
