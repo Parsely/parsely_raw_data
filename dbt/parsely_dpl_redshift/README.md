@@ -27,8 +27,8 @@ A "data-build tool" for your Parse.ly data that automates SQL table creation for
 - Edit the following files:
 -- ~/.dbt/profiles.yml (Input Redshift cluster and database information)
 -- parsely_raw_data/dbt/parsely_dpl/dbt_project.yml (Update all variables commented as configurable; details in document)
--- Run setup.py (details in document)
--- Schedule setup.py to run on an automated schedule
+-- Run redshift.py (details in document)
+-- Schedule redshift.py to run on an automated schedule
 
 ## Data model
 - see Parsely DPL DBT Data Flow Model.png for a visual
