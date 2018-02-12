@@ -1,9 +1,9 @@
+from __future__ import absolute_import
+
 import datetime as dt
 import argparse
 import subprocess
 import os
-
-from __future__ import absolute_import
 
 import parsely_raw_data.redshift as redshift
 import parsely_raw_data.utils as utils
