@@ -77,7 +77,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run the historical back population of Parse.ly DPL data')
     parser.add_argument('--start_date',
                         help='The first day to process data from S3 to Redshift in the format YYYYMMDD')
-    parse.add_argument('--dbt_profiles_dir',
+    parser.add_argument('--dbt_profiles_dir',
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
     args = parser.parse_args()
 
