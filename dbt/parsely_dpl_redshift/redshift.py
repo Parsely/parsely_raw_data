@@ -27,7 +27,7 @@ def historical( network="",
                 secret_access_key="",
                 start_date="",
                 dbt_profiles_dir="",
-                debut=False):
+                debug=False):
 
     prd_redshift.create_table(
         table_name=table_name,
@@ -39,34 +39,47 @@ def historical( network="",
         keep_extra_data=keep_extra_data)
 
     incremental(
-        network=args.network,
-        s3_prefix=prefix,
-        table_name=args.target_table,
-        host=args.redshift_host,
-        user=args.redshift_user,
-        password=args.redshift_password,
-        database=args.redshift_database,
-        port=args.redshift_port,
-        keep_extra_data=args.keep_extra_data,
-        access_key_id=args.aws_access_key_id,
-        secret_access_key=args.aws_secret_access_key,
+        network=network,
+        s3_prefix=s3_prefix,
+        table_name=table_name,
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        port=port,
+        keep_extra_data=keep_extra_data,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
         start_date=start_date,
         dbt_profile_dir=args.dbt_profile_dir
     )
 
-def incremental():
+def incremental(network="",
+                s3_prefix="",
+                table_name="rawdata",
+                host="",
+                user="",
+                password="",
+                database="parsely",
+                port="5439",
+                keep_extra_data=False,
+                access_key_id="",
+                secret_access_key="",
+                start_date="",
+                dbt_profiles_dir="",
+                debug=False):
     for d in daterange(startdate, today):
         prefix = 'events/'+ d.strftime('%Y/%m/%d')
-        prd_redshift.copy_from_s3(  network=args.network,
-                                s3_prefix=prefix,
-                                table_name=args.target_table,
-                                host=args.redshift_host,
-                                user=args.redshift_user,
-                                password=args.redshift_password,
-                                database=args.redshift_database,
-                                port=args.redshift_port,
-                                access_key_id=args.aws_access_key_id,
-                                secret_access_key=args.aws_secret_access_key)
+        prd_redshift.copy_from_s3(  network=network,
+                                s3_prefix=s3_prefix,
+                                table_name=table_name,
+                                host=host,
+                                user=user,
+                                password=password,
+                                database=database,
+                                port=port,
+                                access_key_id=access_key_id,
+                                secret_access_key=secret_access_key)
         dpl_wd = os.path.join(os.getcwd(), 'dbt/parsely_dpl/')
         subprocess.call(dpl_wd + "run_parsely_dpl.sh", shell=True, cwd=dpl_wd)
 
@@ -90,8 +103,8 @@ def main():
     if args.command == 'historical':
         historical(
             network=args.network,
-            s3_prefix=prefix,
-            table_name=args.target_table,
+            s3_prefix=args.s3_prefix,
+            table_name=args.table_name,
             host=args.redshift_host,
             user=args.redshift_user,
             password=args.redshift_password,
@@ -107,8 +120,8 @@ def main():
     elif args.command == 'incremental':
         incremental(
             network=args.network,
-            s3_prefix=prefix,
-            table_name=args.target_table,
+            s3_prefix=args.s3_prefix,
+            table_name=args.table_name,
             host=args.redshift_host,
             user=args.redshift_user,
             password=args.redshift_password,
