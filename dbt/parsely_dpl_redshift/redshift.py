@@ -87,7 +87,6 @@ def main():
     commands = ['historical','incremental']
     parser = utils.get_default_parser("Amazon Redshift utilities for Parse.ly",
                         commands=commands)
-    parser = argparse.ArgumentParser(description='Run the historical back population of Parse.ly DPL data')
     parser.add_argument('--start_date',
                         help='The first day to process data from S3 to Redshift in the format YYYYMMDD')
     parser.add_argument('--dbt_profiles_dir',
