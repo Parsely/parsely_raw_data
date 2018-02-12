@@ -29,7 +29,7 @@ def historical( network="",
                 dbt_profiles_dir="",
                 debut=False):
 
-    redshift.create_table(
+    prd_redshift.create_table(
         table_name=table_name,
         host=host,
         user=user,
@@ -57,7 +57,7 @@ def historical( network="",
 def incremental():
     for d in daterange(startdate, today):
         prefix = 'events/'+ d.strftime('%Y/%m/%d')
-        redshift.copy_from_s3(  network=args.network,
+        prd_redshift.copy_from_s3(  network=args.network,
                                 s3_prefix=prefix,
                                 table_name=args.target_table,
                                 host=args.redshift_host,
@@ -72,7 +72,7 @@ def incremental():
 
 def main():
     commands = ['historical','incremental']
-    parser = redshift.get_default_parser("Amazon Redshift utilities for Parse.ly",
+    parser = prd_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly",
                         commands=commands)
     parser = argparse.ArgumentParser(description='Run the historical back population of Parse.ly DPL data')
     parser.add_argument('--start_date',
