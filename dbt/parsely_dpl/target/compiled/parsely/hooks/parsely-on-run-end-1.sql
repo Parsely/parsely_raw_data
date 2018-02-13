@@ -1,1 +1,0 @@
-truncate table parsely_blog_rawdata
