@@ -12,7 +12,7 @@ def parse_datetime_arg(arg):
     return dt.datetime.strptime(arg, '%Y%m%d')
 
 def daterange(d1, d2):
-    return (d1 + datetime.timedelta(days=i) for i in range((d2 - d1).days + 1))
+    return (d1 + dt.timedelta(days=i) for i in range((d2 - d1).days + 1))
 
 def historical( network="",
                 s3_prefix="",
@@ -51,7 +51,7 @@ def historical( network="",
         access_key_id=access_key_id,
         secret_access_key=secret_access_key,
         start_date=start_date,
-        dbt_profile_dir=args.dbt_profile_dir
+        dbt_profiles_dir=dbt_profiles_dir
     )
 
 def incremental(network="",
@@ -68,10 +68,12 @@ def incremental(network="",
                 start_date="",
                 dbt_profiles_dir="",
                 debug=False):
-    for d in daterange(startdate, today):
+    now = dt.datetime.now()
+    today = now.date()
+    for d in daterange(start_date, today):
         prefix = 'events/'+ d.strftime('%Y/%m/%d')
         prd_redshift.copy_from_s3(  network=network,
-                                s3_prefix=s3_prefix,
+                                s3_prefix=prefix,
                                 table_name=table_name,
                                 host=host,
                                 user=user,
@@ -80,13 +82,12 @@ def incremental(network="",
                                 port=port,
                                 access_key_id=access_key_id,
                                 secret_access_key=secret_access_key)
-        dpl_wd = os.path.join(os.getcwd(), 'dbt/parsely_dpl/')
-        subprocess.call(dpl_wd + "run_parsely_dpl.sh", shell=True, cwd=dpl_wd)
+        dpl_wd = os.path.join(os.getcwd(), 'parsely_raw_data/dbt/parsely_dpl_redshift/')
+        subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir, shell=True, cwd=dpl_wd)
 
 def main():
-    commands = ['historical','incremental']
-    parser = prd_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly",
-                        commands=commands)
+    parser = prd_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly")
+    parser.add_argument('--run_type',help='historical or incremental')
     parser.add_argument('--start_date',
                         help='The first day to process data from S3 to Redshift in the format YYYYMMDD')
     parser.add_argument('--dbt_profiles_dir',
@@ -94,12 +95,12 @@ def main():
     args = parser.parse_args()
 
 #   date fields
-    now = datetime.datetime.now()
+    now = dt.datetime.now()
     today = now.date()
     startdate = parse_datetime_arg(args.start_date).date()
 
 #   run type
-    if args.command == 'historical':
+    if args.run_type == 'historical':
         historical(
             network=args.network,
             s3_prefix=args.s3_prefix,
@@ -113,10 +114,10 @@ def main():
             access_key_id=args.aws_access_key_id,
             secret_access_key=args.aws_secret_access_key,
             start_date=startdate,
-            dbt_profile_dir=args.dbt_profile_dir
+            dbt_profiless_dir=args.dbt_profiles_dir
             )
 
-    elif args.command == 'incremental':
+    elif args.run_type == 'incremental':
         incremental(
             network=args.network,
             s3_prefix=args.s3_prefix,
@@ -130,7 +131,7 @@ def main():
             access_key_id=args.aws_access_key_id,
             secret_access_key=args.aws_secret_access_key,
             start_date=startdate,
-            dbt_profile_dir=args.dbt_profile_dir
+            dbt_profiles_dir=args.dbt_profiles_dir
             )
 
 

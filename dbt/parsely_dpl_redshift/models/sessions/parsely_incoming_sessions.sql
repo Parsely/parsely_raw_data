@@ -14,8 +14,8 @@ with session_metrics as (
 users as (
     select
       apikey_visitor_id,
-      user_type,
-      user_engagement_level
+      user_type as session_user_type,
+      user_engagement_level as session_user_engagement_level
     from {{ref('parsely_users')}}
 ),
 
@@ -32,8 +32,8 @@ session_dedupe_xf as (
       parsely_session_id,
       apikey_visitor_id,
   --  session user dimensions
-      user_type as session_user_type,
-      user_engagement_level as session_user_engagement_level,
+      session_user_type,
+      session_user_engagement_level,
   --  counter field
       1 as session_counter,
   --  derived fields

@@ -30,15 +30,12 @@ with incoming_users as (
 
 rolling_loyalty_users as (
   select
-      apikey,
-      visitor_site_id,
-      --custom fields
       apikey_visitor_id,
       -- metrics
       case when sum(pageviews) >= {{var('custom:rollingloyaltyuser')}} then 'Loyalty' else 'Non Loyalty' end as Rolling_30_Day_Loyalty_User
   from {{ ref('parsely_pageviews_sessionized') }}
   where ts_session_current_tz > dateadd(day ,-30, CURRENT_DATE)
-  group by 1,2,3
+  group by 1
 ),
 
 {%if adapter.already_exists(this.schema,this.name)%}
@@ -167,5 +164,7 @@ select
     case when user_total_pageviews>={{var('custom:loyaltyuser')}}
       then 'Loyalty'
       else 'Non-Loyalty' end as user_engagement_level,
+    Rolling_30_Day_Loyalty_User,
     DATEDIFF(day, last_timestamp, SYSDATE) as days_since_last_session
   from merged
+  left join rolling_loyalty_users using (apikey_visitor_id)
