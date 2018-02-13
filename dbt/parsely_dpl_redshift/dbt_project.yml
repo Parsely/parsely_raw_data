@@ -7,7 +7,7 @@ version: '0.0.1'
 
 # This setting configures which "profile" dbt uses for this project. Profiles contain
 # database connection information, and should be configured in the  ~/.dbt/profiles.yml file
-profile: 'parsely_blog' #'default'
+profile: 'default'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that source models can be found
@@ -28,7 +28,7 @@ models:
   parsely:
     vars:
       # The name of the table that contains the raw data inside the schema specified in ~/.dbt/profiles.yml file
-      'parsely:events': 'parsely_blog_rawdata'
+      'parsely:events': 'parsely_rawdata'
       # All timestamps are in UTC. Specifiy the timezone that the data will be reported in. Available options here: https://docs.aws.amazon.com/redshift/latest/dg/time-zone-names.html
       'parsely:timezone': "'America/New_York'"
       # Parse.ly standard events. Recommeneded to leave as-is: "('pageview','heartbeat','videostart','vheartbeat')"
@@ -64,4 +64,4 @@ models:
 # Database actions that occur after a successful Parse.ly DPL DBT execution
 on-run-end:
      - "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{ target.schema }}.parsely_rawdata {% endif %}"
-     #- "truncate table {{var('parsely:events')}}"
+     - "truncate table {{var('parsely:events')}}"
