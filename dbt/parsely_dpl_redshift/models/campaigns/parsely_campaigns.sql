@@ -26,7 +26,8 @@ with incoming_campaigns as (
   from {{ref('parsely_pageviews_sessionized')}}
 ),
 
-{%if adapter.already_exists(this.schema,this.name)%}
+{%if adapter.already_exists(this.schema,this.name)
+  and not flags.FULL_REFRESH %}
 
 relevant_existing as (
 

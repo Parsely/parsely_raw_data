@@ -16,7 +16,8 @@ with incoming_videoviews as (
 ),
 
 
-{%if adapter.already_exists(this.schema,this.name)%}
+{%if adapter.already_exists(this.schema,this.name)
+  and not flags.FULL_REFRESH %}
 
 relevant_existing as (
 

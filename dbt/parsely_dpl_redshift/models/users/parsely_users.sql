@@ -38,7 +38,8 @@ rolling_loyalty_users as (
   group by 1
 ),
 
-{%if adapter.already_exists(this.schema,this.name)%}
+{%if adapter.already_exists(this.schema,this.name)
+  and not flags.FULL_REFRESH %}
 
 relevant_existing as (
 

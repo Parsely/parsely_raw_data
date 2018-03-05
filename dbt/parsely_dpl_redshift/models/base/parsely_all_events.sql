@@ -11,7 +11,8 @@ with new_events as (
     select *
     from {{ ref('parsely_rawdata') }}
 
-    {% if adapter.already_exists(this.schema, this.name) %}
+    {% if adapter.already_exists(this.schema, this.name)
+      and not flags.FULL_REFRESH %}
     where insert_timestamp > (
         select coalesce(max(t.insert_timestamp), '0001-01-01') from {{ this }} as t
     )
