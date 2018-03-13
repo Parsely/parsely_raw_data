@@ -48,3 +48,6 @@ def get_default_parser(description, commands=None):
 def clean_network(network):
     """Format a network name to match AWS resources"""
     return network.replace(".", "-").replace(" ", "-").lower()
+
+def parse_datetime_arg(arg):
+    return dt.datetime.strptime(arg, '%Y-%m-%d')
