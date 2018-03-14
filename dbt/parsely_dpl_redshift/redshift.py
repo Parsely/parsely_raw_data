@@ -21,7 +21,7 @@ def incremental(network="",
                 access_key_id="",
                 secret_access_key="",
                 start_date="",
-                end_date=dt.datetime.now().date(),
+                end_date="",
                 dbt_profiles_dir="",
                 debug=False):
 
@@ -54,7 +54,11 @@ def main():
 
 #   date fields
     startdate = utils.parse_datetime_arg(args.start_date).date()
-    enddate = utils.parse_datetime_arg(args.end_date).date()
+    if not args.end_date:
+        end_date = dt.datetime.now().strftime('%Y-%m-%d')
+    else:
+        end_date = args.end_date
+    enddate = utils.parse_datetime_arg(end_date).date()
 
 #   run type
     if args.create_table:
