@@ -37,7 +37,7 @@ def migrate_from_s3_by_day(network="",
                                 port=port,
                                 access_key_id=access_key_id,
                                 secret_access_key=secret_access_key)
-        dpl_wd = os.path.join(os.getcwd(), 'parsely_raw_data/dbt/parsely_dpl_redshift/')
+        dpl_wd = os.path.join(os.getcwd(), 'parsely_raw_data/dbt/redshift/')
         subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir, shell=True, cwd=dpl_wd)
 
 def main():
