@@ -9,7 +9,7 @@ from dateutil import rrule
 from parsely_raw_data import redshift as prd_redshift
 from parsely_raw_data import utils as utils
 
-def incremental(network="",
+def migrate_from_s3_by_day(network="",
                 s3_prefix="",
                 table_name="rawdata",
                 host="",
@@ -72,7 +72,7 @@ def main():
             keep_extra_data=args.keep_extra_data
         )
 
-    incremental(
+    migrate_from_s3_by_day(
         network=args.network,
         s3_prefix=args.s3_prefix,
         table_name=args.table_name,
