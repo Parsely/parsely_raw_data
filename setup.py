@@ -48,7 +48,8 @@ install_requires = [
 ]
 
 dbt_requires = [
-    'dbt'
+    'dbt',
+    'psycopg2==2.7.1'
 ]
 
 dependency_links = []

@@ -42,11 +42,11 @@ def migrate_from_s3_by_day(network="",
 
 def main():
     parser = prd_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly")
-    parser.add_argument('--start_date',
+    parser.add_argument('--start_date',required=True,
                         help='The first day to process data from S3 to Redshift in the format YYYY-MM-DD')
-    parser.add_argument('--end_date',
+    parser.add_argument('--end_date', required=True,
                         help='The last day to process data from S3 to Redshift in the format YYYY-MM-DD')
-    parser.add_argument('--dbt_profiles_dir',
+    parser.add_argument('--dbt_profiles_dir', required=True,
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
     parser.add_argument('--create-table', action='store_true',
                         help='Optional: create the Redshift Parse.ly rawdata table because it does not yet exist.')
