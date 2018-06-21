@@ -21,6 +21,12 @@ CHECKS = {'req': 'Fields "{}" are missing, but required. \n{} present',
 
 log = logging.getLogger(__name__)
 
+
+class SchemaValidationError(Exception):
+    """An event fails the validation test."""
+    pass
+
+
 def _create_schema_dict():
     global SCHEMA_DICT, REQ_FIELDS
 
@@ -44,7 +50,7 @@ def _handle_warning(check_type, field, value, cond, raise_error=True):
     """If raise, raise an error. Otherwise just log."""
     msg = "Validation Error:  " + CHECKS[check_type].format(field, cond)
     if raise_error:
-        raise ValueError(msg, value, type(value))
+        raise SchemaValidationError(msg, value, type(value))
     else:
         log.warn(msg, value, type(value))
 
