@@ -25,7 +25,7 @@ e.g. `campaign_id` will be null for events where campaign is false.
 SCHEMA = [
     {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
-    {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "campaign"},
+    {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "url_query"},
     {"key": "display", "ex": True, "type": bool},
     {"key": "display_avail_height", "ex": 735, "type": int, "available_with_field": "display"},
     {"key": "display_avail_width", "ex": 1280, "type": int, "available_with_field": "display"},
