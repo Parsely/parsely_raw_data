@@ -18,8 +18,8 @@ export these to example record formats, BigQuery/Redshift DDLs,
 and documentation in Markdown format.
 
 'available_with_field' means that the field is only present if it's companion field is truthy.
-For all companion fields except for `url_query`, this means they will be True, 
-`url_query` is a string with a value or an empty string.
+For all companion fields except for `url_query` and `surl_query`, this means they will be True,
+`url_query` and `surl_query` are strings with a value or an empty string.
 e.g. `campaign_id` will be null for events where campaign is false.
 """
 SCHEMA = [
@@ -91,11 +91,11 @@ SCHEMA = [
     {"key": "sref_path", "ex": "/", "type": str},
     {"key": "sref_query", "ex": "", "type": str},
     {"key": "sref_scheme", "ex": "http", "type": str, "size": 64},
-    {"key": "surl_utm_campaign", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "url_query"},
-    {"key": "surl_utm_medium", "ex": "partners", "type": str, "size": 64, "available_with_field": "url_query"},
-    {"key": "surl_utm_source", "ex": "facebook", "type": str, "size": 64, "available_with_field": "url_query"},
-    {"key": "surl_utm_term", "ex": "8098", "type": str, "size": 64, "available_with_field": "url_query"},
-    {"key": "surl_utm_content", "ex": "sports", "type": str, "size": 256, "available_with_field": "url_query"},
+    {"key": "surl_utm_campaign", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "surl_query"},
+    {"key": "surl_utm_medium", "ex": "partners", "type": str, "size": 64, "available_with_field": "surl_query"},
+    {"key": "surl_utm_source", "ex": "facebook", "type": str, "size": 64, "available_with_field": "surl_query"},
+    {"key": "surl_utm_term", "ex": "8098", "type": str, "size": 64, "available_with_field": "surl_query"},
+    {"key": "surl_utm_content", "ex": "sports", "type": str, "size": 256, "available_with_field": "surl_query"},
     {"key": "surl_clean", "ex": "http://mashable.com/", "type": str},
     {"key": "surl_domain", "ex": "mashable.com", "type": str, "size": 256},
     {"key": "surl_fragment", "ex": "", "type": str},
@@ -128,7 +128,7 @@ SCHEMA = [
     {"key": "url_params", "ex": "", "type": str},
     {"key": "url_path", "ex": "/2016/09/07/airpods-jokes/", "type": str},
     {"key": "url_query", "ex": "", "type": str},
-    {"key": "url_scheme", "ex": "http", "type": str, "size": 64, "available_with_field": "url_query"},
+    {"key": "url_scheme", "ex": "http", "type": str, "size": 64},
     {"key": "utm_campaign", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "url_query"},
     {"key": "utm_medium", "ex": "partners", "type": str, "size": 64, "available_with_field": "url_query"},
     {"key": "utm_source", "ex": "facebook", "type": str, "size": 64, "available_with_field": "url_query"},
