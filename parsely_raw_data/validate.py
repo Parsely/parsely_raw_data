@@ -14,7 +14,7 @@ Data Pipeline validation functions
 
 SCHEMA_DICT = None
 REQ_FIELDS = None
-CHECKS = {'req': 'Fields "{}" are missing, but required. \n{} present',
+CHECKS = {'req': 'Fields "{}" are missing, but required. {} present',
           'size': 'Field "{}" is too large (size limit {})',
           'type': 'Field "{}" should be {}',
           'not_in_schema': 'Field "{}" not in schema. {}',}
@@ -50,11 +50,17 @@ def _handle_warning(check_type, field, value, cond, raise_error=True):
     """If raise, raise an error. Otherwise just log."""
     msg = "Validation Error:  " + CHECKS[check_type].format(field, cond)
     if raise_error:
-        raise SchemaValidationError(msg, value, type(value))
+        raise SchemaValidationError(msg)
     else:
-        log.warn(msg, value, type(value))
+        log.warn(msg)
 
     return False
+
+def _format_list(lis):
+    if len(lis) > 3:
+        return "{} fields [{}, {}, {}, ...]".format(len(lis),
+                                                  *list(lis)[:3])
+    return list(lis)
 
 
 def validate(event, raise_error=True):
@@ -65,7 +71,7 @@ def validate(event, raise_error=True):
     present = REQ_FIELDS.intersection(set(event.keys()))
     if len(present) != len(REQ_FIELDS):
         missing = REQ_FIELDS - present
-        return _handle_warning('req', list(missing), '', list(present), raise_error=raise_error)
+        return _handle_warning('req', _format_list(missing), '', _format_list(present), raise_error=raise_error)
 
     for field, value in event.items():
         try:
@@ -124,6 +130,10 @@ if __name__ == "__main__":
 
     # not all required fields
     d = {'apikey': 'test.com'}
+    assert validate(d, raise_error=False) != True
+
+    d = {k: SCHEMA_DICT[k]['ex'] for k in REQ_FIELDS}
+    del d['apikey']
     assert validate(d, raise_error=False) != True
 
     # error catching
