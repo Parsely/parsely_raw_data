@@ -41,7 +41,7 @@ def _create_schema_dict():
         SCHEMA_DICT[field_conditions['key']] = conditions
 
     # all required and top-level fields should be present.
-    REQ_FIELDS = set([k for k, v in SCHEMA_DICT.items() if v.get('req') or not v.get('available_with_field')])
+    REQ_FIELDS = set([k for k, v in SCHEMA_DICT.items() if v.get('req') or not v.get('null_unless')])
     SCHEMA_DICT = dict(SCHEMA_DICT)
 _create_schema_dict()
 
