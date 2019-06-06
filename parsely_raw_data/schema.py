@@ -26,7 +26,7 @@ SCHEMA = [
     {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
     {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "url_query"},
-    {"key": "channel", "ex": "AMP", "type": str, "size":64},
+    {"key": "channel", "ex": "AMP", "type": str, "size": 64},
     {"key": "display", "ex": True, "type": bool},
     {"key": "display_avail_height", "ex": 735, "type": int, "available_with_field": "display"},
     {"key": "display_avail_width", "ex": 1280, "type": int, "available_with_field": "display"},
