@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = '2.2.5'
+__version__ = '2.3.0.dev0'
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
 
