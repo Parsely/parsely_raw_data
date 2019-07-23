@@ -1,6 +1,7 @@
 from __future__ import print_function
 
-import json
+import re
+from six import iteritems, text_type
 
 from tabulate import tabulate
 
@@ -146,7 +147,47 @@ SCHEMA = [
     {"key": "visitor_site_id", "ex": "ab94fd31-a207-4010-8a25-fb4788207b82", "type": str, "size": 128, "req": True, "available_with_field": "visitor"}
 ]
 
+def _get_public_dpl_schema():
+    """Get set of public schema keys for use in normalize_keys()"""
+    global PUBLIC_DPL_SCHEMA_KEYS
 
+    if not PUBLIC_DPL_SCHEMA_KEYS:
+        public_schema_keys = {text_type(field["key"]) for field in SCHEMA}
+        PUBLIC_DPL_SCHEMA_KEYS = public_schema_keys
+
+    return PUBLIC_DPL_SCHEMA_KEYS
+
+
+def normalize_keys(r, schema):
+    """Conform events to public schema: correct keys and proper value types."""
+    schema = schema or _get_public_dpl_schema()
+    event_dict = {}
+    with open('parsely_raw_data/__init__.py') as version_file:
+        version = re.search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
+                            version_file.read()).group('version')
+
+    # fix value types
+    if r.get("metadata.share_urls") is not None and isinstance(
+        r["metadata.share_urls"], dict
+    ):
+        r["metadata.share_urls"] = list(r["metadata.share_urls"].values()) or None
+
+    # emit only public schema items
+    for key, val in iteritems(r):
+        key = key.replace(".", "_")
+        if key in schema:
+            event_dict[key]=val
+
+    # ensure all columns are available and null when needed
+    for key in schema:
+        if key not in r.keys():
+            event_dict[key] = None
+
+    event_dict[version] = version
+
+    return event_dict
+
+    return
 def mk_sample_event():
     sample = {}
     for record in SCHEMA:
