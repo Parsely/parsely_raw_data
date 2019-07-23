@@ -162,7 +162,7 @@ def normalize_keys(r, schema):
     """Conform events to public schema: correct keys and proper value types."""
     schema = schema or _get_public_dpl_schema()
     event_dict = {}
-    with open('parsely_raw_data/__init__.py') as version_file:
+    with open('__init__.py') as version_file:
         version = re.search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
                             version_file.read()).group('version')
 
