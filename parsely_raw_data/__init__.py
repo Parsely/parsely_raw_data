@@ -49,9 +49,9 @@ def normalize_keys(r, schema):
             event_dict[key]=val
 
     # ensure all columns are available and null when needed
-    for key in schema:
-        if key not in r.keys():
-            event_dict[key] = None
+    # for key in schema:
+    #     if key not in r.keys():
+    #         event_dict[key] = None
 
     event_dict[version] = version
 
