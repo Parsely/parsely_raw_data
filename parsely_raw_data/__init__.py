@@ -17,6 +17,7 @@ limitations under the License.
 __version__ = '2.3.0.dev0'
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
+from six import iteritems
 
 __all__ = [
     'bigquery',
@@ -28,3 +29,30 @@ __all__ = [
     'stream',
     'utils',
 ]
+
+def normalize_keys(r, schema):
+    """Conform events to public schema: correct keys and proper value types."""
+    schema = schema or schema.SCHEMA
+    event_dict = {}
+    version =__version__
+
+    # fix value types
+    if r.get("metadata.share_urls") is not None and isinstance(
+        r["metadata.share_urls"], dict
+    ):
+        r["metadata.share_urls"] = list(r["metadata.share_urls"].values()) or None
+
+    # emit only public schema items
+    for key, val in iteritems(r):
+        key = key.replace(".", "_")
+        if key in schema:
+            event_dict[key]=val
+
+    # ensure all columns are available and null when needed
+    for key in schema:
+        if key not in r.keys():
+            event_dict[key] = None
+
+    event_dict[version] = version
+
+    return event_dict
