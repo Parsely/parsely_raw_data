@@ -46,12 +46,12 @@ def normalize_keys(r, schema):
     for key, val in iteritems(r):
         key = key.replace(".", "_")
         if key in schema:
-            event_dict[key]=val
+            event_dict[key] = val
 
     # ensure all columns are available and null when needed
-    # for key in schema:
-    #     if key not in r.keys():
-    #         event_dict[key] = None
+    for key in schema:
+        if key not in event_dict.keys():
+            event_dict[key] = None
 
     event_dict[version] = version
 
