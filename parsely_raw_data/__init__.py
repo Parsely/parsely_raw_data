@@ -53,6 +53,6 @@ def normalize_keys(r, schema):
         if key not in event_dict.keys():
             event_dict[key] = None
 
-    event_dict["version"] = version
+    event_dict["schema_version"] = version
 
     return event_dict

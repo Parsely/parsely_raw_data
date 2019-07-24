@@ -76,6 +76,7 @@ SCHEMA = [
     {"key": "ref_query", "ex": "", "type": str},
     {"key": "ref_scheme", "ex": "http", "type": str, "size": 64},
     {"key": "referrer", "ex": "http://mashable.com/", "type": str},
+    {"key": "schema_version", "ex": "2.3.0", "type": str, "size": 64},
     {"key": "session", "ex": True, "type": bool},
     {"key": "session_id", "ex": 6, "type": int, "available_with_field": "session"},
     {"key": "session_initial_referrer", "ex": "http://mashable.com/", "type": str, "available_with_field": "session"},
