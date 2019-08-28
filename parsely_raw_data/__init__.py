@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = '2.3.0.dev0'
+__version__ = '2.3.0.dev1'
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
 from six import iteritems
@@ -28,6 +28,10 @@ __all__ = [
     'schema',
     'stream',
     'utils',
+]
+
+BOOLEAN_FIELDS = [
+    "flags_is_amp",
 ]
 
 def normalize_keys(r, schema):
@@ -49,9 +53,13 @@ def normalize_keys(r, schema):
             event_dict[key] = val
 
     # ensure all columns are available and null when needed
+    # account for all boolean schema defined fields as this is parsely_raw_data specific
     for key in schema:
         if key not in event_dict.keys():
-            event_dict[key] = None
+            if key in BOOLEAN_FIELDS:
+                event_dict[key] = False
+            else:
+                event_dict[key] = None
 
     event_dict["schema_version"] = version
 
