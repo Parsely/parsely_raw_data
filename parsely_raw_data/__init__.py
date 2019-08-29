@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = '2.3.0.dev1'
+__version__ = '2.3.0'
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
 from six import iteritems
@@ -33,6 +33,7 @@ __all__ = [
 BOOLEAN_FIELDS = [
     "flags_is_amp",
 ]
+
 
 def normalize_keys(r, schema):
     """Conform events to public schema: correct keys and proper value types."""
