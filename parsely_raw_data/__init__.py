@@ -35,20 +35,23 @@ BOOLEAN_FIELDS = [
 ]
 
 
-def normalize_keys(r, schema):
-    """Conform events to public schema: correct keys and proper value types."""
+def normalize_keys(event_dict, schema=None):
+    """Conform events to public schema: correct keys and proper value types.
+
+    @param event_dict: A dictionary containing Parse.ly pixel events
+    @param schema:  Optional parameter containing the schema to normalize the event_dict keys against
+                    IF not specified, this will default to the most recent parsely_raw_data schema
+    """
     schema = schema or schema.SCHEMA
-    event_dict = {}
-    version =__version__
 
     # fix value types
-    if r.get("metadata.share_urls") is not None and isinstance(
-        r["metadata.share_urls"], dict
+    if event_dict.get("metadata.share_urls") is not None and isinstance(
+        event_dict["metadata.share_urls"], dict
     ):
-        r["metadata.share_urls"] = list(r["metadata.share_urls"].values()) or None
+        event_dict["metadata.share_urls"] = list(event_dict["metadata.share_urls"].values()) or None
 
     # emit only public schema items
-    for key, val in iteritems(r):
+    for key, val in iteritems(event_dict):
         key = key.replace(".", "_")
         if key in schema:
             event_dict[key] = val
@@ -62,6 +65,6 @@ def normalize_keys(r, schema):
             else:
                 event_dict[key] = None
 
-    event_dict["schema_version"] = version
+    event_dict["schema_version"] = __version__
 
     return event_dict
