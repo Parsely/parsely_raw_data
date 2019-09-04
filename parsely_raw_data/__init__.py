@@ -51,20 +51,20 @@ def normalize_keys(input_event_dict, schema=None):
             list(input_event_dict["metadata.share_urls"].values()) or None
         )
 
-    # emit only public schema items
-    for key, val in iteritems(input_event_dict):
-        key = key.replace(".", "_")
-        if key in schema:
-            event_dict[key] = val
+    # replace all "."s in the key with "_"
+    input_event_dict = {x.replace(',', '_'): v for x, v in input_event_dict.items()}
 
+    # emit only public schema items
     # ensure all columns are available and null when needed
     # account for all boolean schema defined fields as this is parsely_raw_data specific
     for key in schema:
-        if key not in event_dict.keys():
+        if key not in input_event_dict.keys():
             if key in BOOLEAN_FIELDS:
                 event_dict[key] = False
             else:
                 event_dict[key] = None
+        else:
+            event_dict[key] = input_event_dict[key]
 
     event_dict["schema_version"] = __version__
 
