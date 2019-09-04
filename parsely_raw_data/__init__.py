@@ -14,44 +14,45 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = '2.3.0'
+__version__ = "2.3.0"
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
 from six import iteritems
 
 __all__ = [
-    'bigquery',
-    'docgen',
-    'redshift',
-    's3',
-    'samples',
-    'schema',
-    'stream',
-    'utils',
+    "bigquery",
+    "docgen",
+    "redshift",
+    "s3",
+    "samples",
+    "schema",
+    "stream",
+    "utils",
 ]
 
-BOOLEAN_FIELDS = [
-    "flags_is_amp",
-]
+BOOLEAN_FIELDS = ["flags_is_amp"]
 
 
-def normalize_keys(event_dict, schema=None):
+def normalize_keys(input_event_dict, schema=None):
     """Conform events to public schema: correct keys and proper value types.
 
-    @param event_dict: A dictionary containing Parse.ly pixel events
+    @param input_event_dict: A dictionary containing Parse.ly pixel events
     @param schema:  Optional parameter containing the schema to normalize the event_dict keys against
                     IF not specified, this will default to the most recent parsely_raw_data schema
     """
+    event_dict = {}
     schema = schema or schema.SCHEMA
 
     # fix value types
-    if event_dict.get("metadata.share_urls") is not None and isinstance(
-        event_dict["metadata.share_urls"], dict
+    if input_event_dict.get("metadata.share_urls") is not None and isinstance(
+        input_event_dict["metadata.share_urls"], dict
     ):
-        event_dict["metadata.share_urls"] = list(event_dict["metadata.share_urls"].values()) or None
+        input_event_dict["metadata.share_urls"] = (
+            list(input_event_dict["metadata.share_urls"].values()) or None
+        )
 
     # emit only public schema items
-    for key, val in iteritems(event_dict):
+    for key, val in iteritems(input_event_dict):
         key = key.replace(".", "_")
         if key in schema:
             event_dict[key] = val
