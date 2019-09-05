@@ -30,7 +30,7 @@ __all__ = [
     "utils",
 ]
 
-BOOLEAN_FIELDS = ["flags_is_amp"]
+BOOLEAN_FIELDS = {"flags_is_amp"}
 
 
 def normalize_keys(input_event_dict, schema=None):
