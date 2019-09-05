@@ -58,7 +58,7 @@ def normalize_keys(input_event_dict, schema=None):
     # ensure all columns are available and null when needed
     # account for all boolean schema defined fields as this is parsely_raw_data specific
     for key in schema:
-        if key not in input_event_dict.keys():
+        if key not in input_event_dict:
             if key in BOOLEAN_FIELDS:
                 event_dict[key] = False
             else:
