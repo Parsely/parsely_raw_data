@@ -250,7 +250,7 @@ def test_normalize_keys_empty_dict():
         "event_id": "1234"
     }
     normalized_dict = dict(parsely_raw_data.normalize_keys(event_empty_dict, schema=public_schema_keys))
-    assert len(normalized_dict.keys()) > 2
+    assert len(normalized_dict.keys()) == len(public_schema_keys)
 
 
 def test_normalize_keys_partially_complete_dict():
