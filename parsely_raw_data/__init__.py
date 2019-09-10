@@ -52,7 +52,7 @@ def normalize_keys(input_event_dict, schema=None):
         )
 
     # replace all "."s in the key with "_"
-    input_event_dict = {x.replace(',', '_'): v for x, v in input_event_dict.items()}
+    input_event_dict = {x.replace('.', '_'): v for x, v in input_event_dict.items()}
 
     # emit only public schema items
     # ensure all columns are available and null when needed
