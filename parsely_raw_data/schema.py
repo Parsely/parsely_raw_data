@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import json
-
 from tabulate import tabulate
 
 """
@@ -78,6 +76,7 @@ SCHEMA = [
     {"key": "ref_query", "ex": "", "type": str},
     {"key": "ref_scheme", "ex": "http", "type": str, "size": 64},
     {"key": "referrer", "ex": "http://mashable.com/", "type": str},
+    {"key": "schema_version", "ex": "2.3.0", "type": str, "size": 64},
     {"key": "session", "ex": True, "type": bool},
     {"key": "session_id", "ex": 6, "type": int, "available_with_field": "session"},
     {"key": "session_initial_referrer", "ex": "http://mashable.com/", "type": str, "available_with_field": "session"},
@@ -145,7 +144,6 @@ SCHEMA = [
     {"key": "visitor_network_id", "ex": "ac94fe31-a307-4020-9a23-fa4798217b02", "type": str, "size": 128, "available_with_field": "visitor"},
     {"key": "visitor_site_id", "ex": "ab94fd31-a207-4010-8a25-fb4788207b82", "type": str, "size": 128, "req": True, "available_with_field": "visitor"}
 ]
-
 
 def mk_sample_event():
     sample = {}
