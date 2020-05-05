@@ -141,7 +141,7 @@ SCHEMA = [
     {"key": "version", "ex": 1, "type": int},
     {"key": "visitor", "ex": True, "type": bool},
     {"key": "visitor_ip", "ex": "108.225.131.20", "type": str, "size": 256, "available_with_field": "visitor"},
-    {"key": "visitor_network_id", "ex": None, "type": str, "size": 128, "available_with_field": "visitor"},
+    {"key": "visitor_network_id", "ex": None, "type": str, "size": 128},
     {"key": "visitor_site_id", "ex": "ab94fd31-a207-4010-8a25-fb4788207b82", "type": str, "size": 128, "req": True, "available_with_field": "visitor"}
 ]
 
