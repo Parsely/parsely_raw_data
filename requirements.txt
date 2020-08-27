@@ -5,3 +5,5 @@ six
 tablib
 xlsxwriter
 tabulate
+oauth2client
+pytest
