@@ -1,0 +1,10 @@
+.*.sw*
+.*.un~
+.tox
+*.egg-info
+*.pyc
+.python-version
+.cache
+build/*
+dist/*
+.idea/*

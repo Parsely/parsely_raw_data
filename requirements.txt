@@ -1,0 +1,9 @@
+boto3
+google-api-python-client
+psycopg2cffi-compat
+six
+tablib
+xlsxwriter
+tabulate
+oauth2client
+pytest
