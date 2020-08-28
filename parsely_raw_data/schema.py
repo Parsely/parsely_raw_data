@@ -6,19 +6,17 @@ from tabulate import tabulate
 
 """
 Data Pipeline event schema DSL has this form:
-
     {"key": "action",     # key or column
      "ex": "pageview",    # example value
      "type": str,         # 'abstract' type
      "size": 256,         # rough size/length of field
      "req": True}         # is the field required?
-
 Those are listed below, and then a number of functions
 export these to example record formats, BigQuery/Redshift DDLs,
 and documentation in Markdown format.
 """
 SCHEMA = [
-    {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
+    {"key": "action", "ex": "pageview", "type": str, "size": 256},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
     {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256},
     {"key": "display", "ex": True, "type": bool},
