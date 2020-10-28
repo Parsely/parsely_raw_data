@@ -78,5 +78,4 @@ These are the steps that should be followed when releasing a new version of this
 
 Using the Parse.ly DBT Star Schema in Redshift
 ----------------------------------------------
-* ``python -m parsely_raw_data.redshift``: Create an Amazon Redshift table for events and load data
-* ``python -m parsely_dbt_redshift``: Copy the data over to Redshift
+* ``python -m parsely_redshift_etl``: A schedule-able command to complete the full ETL into the Redshift star schema using DBT.

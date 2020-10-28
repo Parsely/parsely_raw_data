@@ -97,7 +97,7 @@ def run_setup():
                 'parsely_s3 = parsely_raw_data.s3:main',
                 'parsely_stream = parsely_raw_data.stream:main',
                 'parsely_schema = parsely_raw_data.docgen:main',
-                'parsely_dbt_redshift = dbt.redshift.redshift_etl:main'
+                'parsely_redshift_etl = dbt.redshift.redshift_etl:main'
             ]
         },
         install_requires=install_requires,

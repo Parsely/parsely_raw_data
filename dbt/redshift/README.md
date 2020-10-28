@@ -28,7 +28,8 @@ A "data-build tool" for your Parse.ly data that automates SQL table creation for
  - `~/.dbt/profiles.yml`: Input Redshift cluster and database information
  - `dbt_project.yml`: Update all variables commented as configurable
  - Run `redshift_etl.py` with the arguments listed in the file. You will need your dbt-profile that you 
- specified for this connection, the s3 bucket name, and a date range to run the ETL.
+ specified for this connection, the s3 bucket name, and a date range to run the ETL. An example run is:
+ `python -m redshift_etl --network 'parsely-dw-parse-ly-demo' --table_name 'demo_parsely_dpl' --redshift_host 'hostname.comm' --redshift_user 'put_user_here' --redshift_password 'put_password_here' --redshift_database 'db_name' --redshift_port '5439' --keep-extra-data --start_date '2020-10-15' --end_date '2020-10-16' --dbt_profiles_dir '~/.dbt/' --create-table`
  - Schedule `redshift_etl.py` to run on an automated schedule (recommended daily)
 
 ## Data model

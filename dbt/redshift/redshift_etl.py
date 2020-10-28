@@ -28,7 +28,7 @@ def migrate_from_s3_by_day(network="",
 
     for d in rrule.rrule(rrule.DAILY, interval=1, dtstart=start_date, until=end_date):
         prefix = 'events/'+ d.strftime('%Y/%m/%d')
-        parsely_redshift.copy_from_s3(  network=network,
+        parsely_redshift.copy_from_s3(network=network,
                                 s3_prefix=prefix,
                                 table_name=table_name,
                                 host=host,
