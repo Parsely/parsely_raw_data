@@ -10,20 +10,19 @@ from parsely_raw_data import redshift as parsely_redshift
 from parsely_raw_data import utils as parsely_utils
 
 
-def migrate_from_s3_by_day(network="",
-                s3_prefix="",
-                table_name="rawdata",
-                host="",
-                user="",
-                password="",
-                database="parsely",
+def migrate_from_s3_by_day(network=None,
+                table_name="parsely_data_pipeline",
+                host=None,
+                user=None,
+                password=None,
+                database=None,
                 port="5439",
                 keep_extra_data=True,
-                access_key_id="",
-                secret_access_key="",
-                start_date="",
-                end_date="",
-                dbt_profiles_dir="",
+                access_key_id=None,
+                secret_access_key=None,
+                start_date=None,
+                end_date=None,
+                dbt_profiles_dir=None,
                 debug=False):
 
     for d in rrule.rrule(rrule.DAILY, interval=1, dtstart=start_date, until=end_date):
@@ -76,7 +75,6 @@ def main():
 
     migrate_from_s3_by_day(
         network=args.network,
-        s3_prefix=args.s3_prefix,
         table_name=args.table_name,
         host=args.redshift_host,
         user=args.redshift_user,
