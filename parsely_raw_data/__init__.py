@@ -69,3 +69,4 @@ def normalize_keys(input_event_dict, schema=None):
     event_dict["schema_version"] = __version__
 
     return event_dict
+

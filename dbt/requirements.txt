@@ -1,1 +1,2 @@
 dbt==0.17.2
+python-dateutil

@@ -75,3 +75,8 @@ These are the steps that should be followed when releasing a new version of this
 * ``git push origin master --tags``
 * Create a new release for the new tag in github, noting any relevant changes
 * Push to PyPI with ``python setup.py sdist upload``
+
+Using the Parse.ly DBT Star Schema in Redshift
+----------------------------------------------
+* ``python -m parsely_raw_data.redshift``: Create an Amazon Redshift table for events and load data
+* ``python -m parsely_dbt_redshift``: Copy the data over to Redshift

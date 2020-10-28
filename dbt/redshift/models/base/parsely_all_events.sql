@@ -82,6 +82,7 @@ dedupe as (
       case when action = 'videostart' then 1 else 0 end as videostart_counter,
   --  hash identifier fields
       md5(
+        coalesce(videostart_id,'')|| '_' ||
         coalesce(apikey,'') || '_' ||
         coalesce(session_id::text,'') || '_' ||
         coalesce(visitor_site_id,'') || '_' ||
@@ -90,6 +91,7 @@ dedupe as (
         coalesce(referrer,'') || '_' ||
         coalesce(ts_session_current::text,''))         as videostart_key,
      md5(
+        coalesce(pageview_id,'')|| '_' ||
         coalesce(apikey,'') || '_' ||
         coalesce(session_id::text,'') || '_' ||
         coalesce(visitor_site_id,'') || '_' ||

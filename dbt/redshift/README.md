@@ -25,13 +25,15 @@ A "data-build tool" for your Parse.ly data that automates SQL table creation for
 - Install DBT
 ```pip install -r requirements.txt```
 - Edit the following files:
- - ~/.dbt/profiles.yml (Input Redshift cluster and database information)
- - parsely_raw_data/dbt/parsely_dpl/dbt_project.yml (Update all variables commented as configurable; details in document)
- - Run migrations.py (details in document)
- - Schedule migrations.py to run on an automated schedule
+ - `~/.dbt/profiles.yml`: Input Redshift cluster and database information
+ - `dbt_project.yml`: Update all variables commented as configurable
+ - Run `redshift_etl.py` with the arguments listed in the file. You will need your dbt-profile that you 
+ specified for this connection, the s3 bucket name, and a date range to run the ETL.
+ - Schedule `redshift_etl.py` to run on an automated schedule (recommended daily)
 
 ## Data model
-- see Parsely DPL DBT Data Flow Model.png for a visual
+-  This is a diagram of the entire ETL from the Parse.ly Data Pipeline rawdata to
+the documented star schema in Redshift: ![ETL Diagram](Parsely_DPL_DBT_etl_model.png)
 
 
 ---
