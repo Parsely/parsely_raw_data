@@ -11,7 +11,7 @@ with new_events as (
     select *
     from {{ ref('parsely_rawdata') }}
 
-    {% if adapter.already_exists(this.schema, this.name)
+    {% if adapter.get_relation(database=this.database, schema=this.schema, identifier=this.name)
       and not flags.FULL_REFRESH %}
     where insert_timestamp > (
         select coalesce(max(t.insert_timestamp), '0001-01-01') from {{ this }} as t
@@ -66,8 +66,8 @@ dedupe as (
       DATE_PART('month',ts_action_tz) as month,
       DATE_PART('year',ts_action_tz) as year,
       DATE_PART('week',ts_action_tz) as week,
-      (DATE_PART('y', ts_action_tz)*10000+DATE_PART('mon', ts_action_tz)*100+DATE_PART('day', ts_action_tz))::int AS date_id,
-      (DATE_PART('y', ts_session_current_tz)*10000+DATE_PART('mon', ts_session_current_tz)*100+DATE_PART('day', ts_session_current_tz))::int AS session_date_id,
+      (DATE_PART('y', ts_action_tz)*10000+DATE_PART('mon', ts_action_tz)*100+DATE_PART('day', ts_action_tz)) AS date_id,
+      (DATE_PART('y', ts_session_current_tz)*10000+DATE_PART('mon', ts_session_current_tz)*100+DATE_PART('day', ts_session_current_tz)) AS session_date_id,
   --  transformed fields
       coalesce(metadata_canonical_url,url) as pageview_post_id,
       json_extract_path_text(
@@ -82,37 +82,37 @@ dedupe as (
       case when action = 'videostart' then 1 else 0 end as videostart_counter,
   --  hash identifier fields
       md5(
-        coalesce(videostart_id,'')|| '_' ||
-        coalesce(apikey,'') || '_' ||
+        coalesce(videostart_id::text,'')|| '_' ||
+        coalesce(apikey::text,'') || '_' ||
         coalesce(session_id::text,'') || '_' ||
-        coalesce(visitor_site_id,'') || '_' ||
-        coalesce(url,'') || '_' ||
-        coalesce(metadata_canonical_url,'') || '_' ||
-        coalesce(referrer,'') || '_' ||
+        coalesce(visitor_site_id::text,'') || '_' ||
+        coalesce(url::text,'') || '_' ||
+        coalesce(metadata_canonical_url::text,'') || '_' ||
+        coalesce(referrer::text,'') || '_' ||
         coalesce(ts_session_current::text,''))         as videostart_key,
      md5(
-        coalesce(pageview_id,'')|| '_' ||
-        coalesce(apikey,'') || '_' ||
+        coalesce(pageview_id::text,'')|| '_' ||
+        coalesce(apikey::text,'') || '_' ||
         coalesce(session_id::text,'') || '_' ||
-        coalesce(visitor_site_id,'') || '_' ||
-        coalesce(metadata_canonical_url,url) || '_' ||
-        coalesce(referrer,'') || '_' ||
+        coalesce(visitor_site_id::text,'') || '_' ||
+        coalesce(metadata_canonical_url::text,url) || '_' ||
+        coalesce(referrer::text,'') || '_' ||
         coalesce(ts_session_current::text,''))         as pageview_key,
       md5(
-        coalesce(apikey,'') || '_' ||
-        coalesce(utm_campaign,'') || '_' ||
-        coalesce(utm_medium,'') || '_' ||
-        coalesce(utm_source ,'') || '_' ||
-        coalesce(utm_term,'') || '_' ||
-        coalesce(utm_content,'') )               as utm_id,
+        coalesce(apikey::text,'') || '_' ||
+        coalesce(utm_campaign::text,'') || '_' ||
+        coalesce(utm_medium::text,'') || '_' ||
+        coalesce(utm_source::text,'') || '_' ||
+        coalesce(utm_term::text,'') || '_' ||
+        coalesce(utm_content::text,'') )               as utm_id,
       md5(
-        coalesce(apikey,'') || '_' ||
+        coalesce(apikey::text,'') || '_' ||
         coalesce(session_id::text,'') || '_' ||
-        coalesce(visitor_site_id,'') || '_' ||
+        coalesce(visitor_site_id::text,'') || '_' ||
         coalesce(session_timestamp::text,''))            as parsely_session_id,
       md5(
-        coalesce(apikey,'') || '_' ||
-        coalesce(visitor_site_id,''))           as apikey_visitor_id
+        coalesce(apikey::text,'') || '_' ||
+        coalesce(visitor_site_id::text,''))           as apikey_visitor_id
   from timezone_convert
 )
 

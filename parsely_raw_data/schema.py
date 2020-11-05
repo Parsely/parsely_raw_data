@@ -277,6 +277,7 @@ def mk_redshift_schema(keep_extra_data=False):
     ddl[-1] = ddl[-1].replace(",", "")
     # close it up
     ddl.append(");")
+    print(ddl)
     return "\n".join(ddl)
 
 

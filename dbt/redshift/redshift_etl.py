@@ -23,6 +23,7 @@ def migrate_from_s3_by_day(network=None,
                 start_date=None,
                 end_date=None,
                 dbt_profiles_dir=None,
+                dbt_target=None,
                 debug=False):
 
     for d in rrule.rrule(rrule.DAILY, interval=1, dtstart=start_date, until=end_date):
@@ -37,8 +38,8 @@ def migrate_from_s3_by_day(network=None,
                                 port=port,
                                 access_key_id=access_key_id,
                                 secret_access_key=secret_access_key)
-        dpl_wd = os.path.join(os.getcwd(), 'parsely_raw_data/dbt/redshift/')
-        subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir, shell=True, cwd=dpl_wd)
+        dpl_wd = os.path.join(os.getcwd(), 'dbt/redshift/')
+        subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dpl_wd)
 
 
 def main():
@@ -49,6 +50,8 @@ def main():
                         help='The last day to process data from S3 to Redshift in the format YYYY-MM-DD')
     parser.add_argument('--dbt_profiles_dir', required=True,
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
+    parser.add_argument('--dbt_target', required=True,
+                        help='The target ie. dev, prod, or test to use within the dbt profiles.yml file.')
     parser.add_argument('--create-table', action='store_true',
                         help='Optional: create the Redshift Parse.ly rawdata table because it does not yet exist.')
     args = parser.parse_args()
@@ -62,6 +65,7 @@ def main():
     end_date = parsely_utils.parse_datetime_arg(end_date).date()
 
 #   run type
+#  TODO HANDLE psycopg2.errors.DuplicateTable: Relation "demo_rawdata" already exists
     if args.create_table:
         parsely_redshift.create_table(
             table_name=args.table_name,
@@ -73,6 +77,7 @@ def main():
             keep_extra_data=args.keep_extra_data
         )
 
+# TODO Create Schema that's in dbt profiles if it does not already exist
     migrate_from_s3_by_day(
         network=args.network,
         table_name=args.table_name,
@@ -86,7 +91,8 @@ def main():
         secret_access_key=args.aws_secret_access_key,
         start_date=start_date,
         end_date=end_date,
-        dbt_profiles_dir=args.dbt_profiles_dir
+        dbt_profiles_dir=args.dbt_profiles_dir,
+        dbt_target=args.dbt_target
         )
 
 

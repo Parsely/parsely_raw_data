@@ -16,7 +16,7 @@ with incoming_pageviews as (
 ),
 
 
-{%if adapter.already_exists(this.schema,this.name)%}
+{%if adapter.get_relation(database=this.database, schema=this.schema, identifier=this.name)%}
 
 relevant_existing as (
 
