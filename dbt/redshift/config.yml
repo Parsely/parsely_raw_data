@@ -1,8 +1,0 @@
-redshift_settings:
-  # The name of the table that contains the raw data inside the schema specified in ~/.dbt/profiles.yml file
-  'paresly_raw_data': 'demo_rawdata'
-
-dbt_settings:
-  'profile_location': '~/.dbt/'
-  'profile_name': 'parsely-dwh' #change to default
-  'target_name': 'parsely_raw_data' #change to dev

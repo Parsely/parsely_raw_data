@@ -1,29 +1,49 @@
 from __future__ import absolute_import
-
-import datetime as dt
+import logging
 import subprocess
 import os
 
 from dateutil import rrule
+from sqlalchemy.exc import ProgrammingError
 
 from parsely_raw_data import redshift as parsely_redshift
 from parsely_raw_data import utils as parsely_utils
+from dbt.redshift.settings.default import *
+from dbt.redshift.settings.merge_settings_yaml import migrate_settings
+
+SETTINGS_ARG_MAPPING = {
+    'table_name': PARSELY_RAW_DATA_TABLE,
+    'host': REDSHIFT_HOST,
+    'user': REDSHIFT_USER,
+    'password': REDSHIFT_PASSWORD,
+    'database': REDSHIFT_DATABASE,
+    'port': REDSHIFT_PORT,
+    'keep_extra_data': ETL_KEEP_RAW_DATA,
+}
+
+
+def get_settings_arg_mapping_value(field_name, arg_value):
+    if arg_value:
+        return arg_value
+    else:
+        settings_value = SETTINGS_ARG_MAPPING[field_name]
+        return settings_value
 
 
 def migrate_from_s3_by_day(network=None,
-                table_name="parsely_data_pipeline",
-                host=None,
-                user=None,
-                password=None,
-                database=None,
-                port="5439",
-                keep_extra_data=True,
-                access_key_id=None,
-                secret_access_key=None,
-                start_date=None,
-                end_date=None,
-                dbt_profiles_dir=None,
-                dbt_target=None,
+                table_name=PARSELY_RAW_DATA_TABLE,
+                host=REDSHIFT_HOST,
+                user=REDSHIFT_USER,
+                password=REDSHIFT_PASSWORD,
+                database=REDSHIFT_DATABASE,
+                port=REDSHIFT_PORT,
+                keep_extra_data=ETL_KEEP_RAW_DATA,
+                access_key_id=S3_AWS_ACCESS_KEY_ID,
+                secret_access_key=S3_AWS_SECRET_ACCESS_KEY,
+                start_date=ETL_START_DATE,
+                end_date=ETL_END_DATE,
+                dbt_profiles_dir=DBT_PROFILE_LOCATION,
+                dbt_target=DBT_PROFILE_TARGET_NAME,
                 debug=False):
 
     for d in rrule.rrule(rrule.DAILY, interval=1, dtstart=start_date, until=end_date):
@@ -44,40 +64,38 @@ def migrate_from_s3_by_day(network=None,
 
 def main():
     parser = parsely_redshift.get_default_parser("Amazon Redshift utilities for Parse.ly")
-    parser.add_argument('--start_date',required=True,
+    parser.add_argument('--start_date', required=True, default=ETL_START_DATE,
                         help='The first day to process data from S3 to Redshift in the format YYYY-MM-DD')
-    parser.add_argument('--end_date', required=True,
+    parser.add_argument('--end_date', required=True, default=ETL_END_DATE,
                         help='The last day to process data from S3 to Redshift in the format YYYY-MM-DD')
-    parser.add_argument('--dbt_profiles_dir', required=True,
+    parser.add_argument('--dbt_profiles_dir', required=True, default=DBT_PROFILE_LOCATION,
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
-    parser.add_argument('--dbt_target', required=True,
+    parser.add_argument('--dbt_target', required=True, default=DBT_PROFILE_TARGET_NAME,
                         help='The target ie. dev, prod, or test to use within the dbt profiles.yml file.')
-    parser.add_argument('--create-table', action='store_true',
+    parser.add_argument('--create-table', action='store_true', default=True,
                         help='Optional: create the Redshift Parse.ly rawdata table because it does not yet exist.')
     args = parser.parse_args()
 
-#   date fields
-    start_date = parsely_utils.parse_datetime_arg(args.start_date).date()
-    if not args.end_date:
-        end_date = dt.datetime.now().strftime('%Y-%m-%d')
-    else:
-        end_date = args.end_date
-    end_date = parsely_utils.parse_datetime_arg(end_date).date()
+    # Reset dbt_profile to any updated settings:
+    settings_migration = migrate_settings()
+    if not settings_migration:
+        logging.warning("Settings not copied to dbt_profiles.yml succcessfully.")
 
-#   run type
-#  TODO HANDLE psycopg2.errors.DuplicateTable: Relation "demo_rawdata" already exists
+    # Handle defaults
     if args.create_table:
-        parsely_redshift.create_table(
-            table_name=args.table_name,
-            host=args.redshift_host,
-            user=args.redshift_user,
-            password=args.redshift_password,
-            database=args.redshift_database,
-            port=args.redshift_port,
-            keep_extra_data=args.keep_extra_data
-        )
+        try:
+            parsely_redshift.create_table(
+                table_name=get_settings_arg_mapping_value('table_name', args.table_name),
+                host=get_settings_arg_mapping_value('host', args.redshift_host),
+                user=get_settings_arg_mapping_value('user', args.redshift_user),
+                password=get_settings_arg_mapping_value('password', args.redshift_password),
+                database=get_settings_arg_mapping_value('database', args.redshift_database),
+                port=get_settings_arg_mapping_value('port', args.redshift_port),
+                keep_extra_data=get_settings_arg_mapping_value('keep_extra_data', args.keep_extra_data)
+            )
+        except ProgrammingError:
+            logging.warning("Table already exists, skipping create table statement.")
 
-# TODO Create Schema that's in dbt profiles if it does not already exist
     migrate_from_s3_by_day(
         network=args.network,
         table_name=args.table_name,
@@ -89,8 +107,8 @@ def main():
         keep_extra_data=args.keep_extra_data,
         access_key_id=args.aws_access_key_id,
         secret_access_key=args.aws_secret_access_key,
-        start_date=start_date,
-        end_date=end_date,
+        start_date=args.start_date,
+        end_date=args.end_date,
         dbt_profiles_dir=args.dbt_profiles_dir,
         dbt_target=args.dbt_target
         )

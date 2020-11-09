@@ -37,8 +37,6 @@ vars:
     'parsely:timezone': "'America/New_York'"
     # Parse.ly standard events. Recommended to leave as-is: "('pageview','heartbeat','videostart','vheartbeat')"
     'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')"
-    # Update to 'false' if bot traffic should be included and 'true' if bot traffic should be excluded
-    'custom:excludebottraffic': 'false'
     # The key in the json dictionary passed through the extra_data field: { "key" : "value" } Example: "'userType'"
     'custom:extradata': "''"
     # The desired Redshift column name of the extra data field listed above (could be equivalent) Example: 'user_type'
