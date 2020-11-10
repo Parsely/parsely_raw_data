@@ -10,3 +10,4 @@ xlsxwriter
 tabulate
 oauth2client
 pytest
+pyyaml<=5.1
