@@ -1,65 +1,41 @@
-name: 'parsely'
-
-config-version: 2
-version: '0.0.1'
-
-# This setting configures which "profile" dbt uses for this project.
-# Profiles contain database connection information
-# By default, dbt looks for this file in ~/.dbt/profiles.yml.
-# DBT reference documents: https://docs.getdbt.com/v0.10/reference#profile
-profile: 'parsely_dwh' #'default'
-
-# These configurations specify where dbt should look for different types of files.
-# The `source-paths` config, for example, states that source models can be found
-# in the "models/" directory. You probably won't need to change these!
-source-paths: ["models"]
-analysis-paths: ["analysis"]
-test-paths: ["tests"]
-data-paths: ["data"]
-macro-paths: ["macros"]
-target-path: "target"  # directory which will store compiled SQL files
-clean-targets:         # directories to be removed by `dbt clean`
-    - "target"
-    - "dbt_modules"
-
-
-models:
-  base:
-    materialized: view
-    optional:
-      enabled: false
-
-# Below are the variables that are available for configuration
-vars:
-    # The name of the table that contains the raw data inside the schema specified in ~/.dbt/profiles.yml file
-    'parsely:events': 'demo_rawdata'
-    # All timestamps are in UTC. Specifiy the timezone that the data will be reported in. Available options here: https://docs.aws.amazon.com/redshift/latest/dg/time-zone-names.html
-    'parsely:timezone': "'America/New_York'"
-    # Parse.ly standard events. Recommended to leave as-is: "('pageview','heartbeat','videostart','vheartbeat')"
-    'parsely:actions': "('pageview','heartbeat','videostart','vheartbeat')"
-    # The key in the json dictionary passed through the extra_data field: { "key" : "value" } Example: "'userType'"
-    'custom:extradata': "''"
-    # The desired Redshift column name of the extra data field listed above (could be equivalent) Example: 'user_type'
-    'custom:extradataname': 'custom_extra_data'
-    # A list of any custom actions sent through the Parse.ly DPL in the format: 'custom:actions': "('list','custom','actions','individually')"
-    'custom:actions': ''
-    # Number of lifetime pageviews from the start of Parse.ly DPL data tracking that identify a user as loyalty
-    'custom:loyaltyuser': '100'
-    # Number of rolling 30 days pageviews that identify a user as a current loyalty user
-    'custom:rollingloyaltyuser': '30'
-    # Reading and video watching categories:
-    # Time in seconds where reading engaged time less than this amount is considered a 'skim'
-    'custom:skimtime': '15'
-    # Time in seconds where reading engaged time greater than this amount is considered a 'deep read'
-    'custom:deepreadtime': '40'
-    # Time in seconds where video engaged time less than this amount is considered a 'skim'
-    'custom:videoskimtime': '15'
-    # Time in seconds where video engaged time greater than this amount is considered a 'deep watch'
-    'custom:videodeepwatchtime': '60'
-    # set to 'true' when the parsely:events table above should keep all historical data; set to 'false' when the parsely:events table should truncate after every incremental load
-    'etl:keep_rawdata': true
-
-# Database actions that occur after a successful Parse.ly DPL DBT execution
-on-run-end:
-     - "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{ target.schema }}.parsely_rawdata {% endif %}"
-     - "truncate table {{var('parsely:events')}}"
+"analysis-paths":
+- "analysis"
+"clean-targets":
+- "target"
+- "dbt_modules"
+"config-version": !!int "2"
+"data-paths":
+- "data"
+"macro-paths":
+- "macros"
+"models":
+  "base":
+    "materialized": "view"
+    "optional":
+      "enabled": !!bool "false"
+"name": "parsely"
+"on-run-end":
+- "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{\
+  \ target.schema }}.parsely_rawdata {% endif %}"
+- "truncate table {{var('parsely:events')}}"
+"profile": "parsely_dwh"
+"source-paths":
+- "models"
+"target-path": "target"
+"test-paths":
+- "tests"
+"vars":
+  "custom:actions": "('conversion')"
+  "custom:deepreadtime": "40"
+  "custom:extradata": "'user_type'"
+  "custom:extradataname": "custom_extra_data"
+  "custom:loyaltyuser": "100"
+  "custom:rollingloyaltyuser": "30"
+  "custom:skimtime": "15"
+  "custom:videodeepwatchtime": "60"
+  "custom:videoskimtime": "15"
+  "etl:keep_rawdata": "True"
+  "parsely:actions": "('pageview','heartbeat','videostart','vheartbeat')"
+  "parsely:events": "demo_rawdata"
+  "parsely:timezone": "'America/New_York'"
+"version": "0.0.1"

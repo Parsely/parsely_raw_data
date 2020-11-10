@@ -132,7 +132,6 @@ def copy_from_s3(network,
         s3_prefix=s3_prefix,
         aws_access_key_id=access_key_id,
         aws_secret_access_key=secret_access_key)
-    print(f'query is {query}')
     if debug:
         print("Running the following Redshift COPY command:")
         print(query)
