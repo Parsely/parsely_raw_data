@@ -25,7 +25,7 @@
 "test-paths":
 - "tests"
 "vars":
-  "custom:actions": "('conversion')"
+  "custom:actions": "conversion"
   "custom:deepreadtime": "40"
   "custom:extradata": "'user_type'"
   "custom:extradataname": "custom_extra_data"
@@ -35,7 +35,7 @@
   "custom:videodeepwatchtime": "60"
   "custom:videoskimtime": "15"
   "etl:keep_rawdata": "True"
-  "parsely:actions": "('pageview','heartbeat','videostart','vheartbeat')"
+  "parsely:actions": "('pageview', 'heartbeat', 'videostart', 'vheartbeat')"
   "parsely:events": "demo_rawdata"
   "parsely:timezone": "'America/New_York'"
 "version": "0.0.1"

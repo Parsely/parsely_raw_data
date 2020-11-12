@@ -29,11 +29,7 @@ SETTINGS_ARG_MAPPING = {
 
 
 def get_settings_arg_mapping_value(field_name, arg_value):
-    if arg_value:
-        return arg_value
-    else:
-        settings_value = SETTINGS_ARG_MAPPING[field_name]
-        return settings_value
+    return arg_value or SETTINGS_ARG_MAPPING[field_name]
 
 
 def migrate_from_s3_by_day(network=S3_NETWORK_NAME,

@@ -27,7 +27,7 @@ def get_default_parser(description, commands=None):
     """
     parser = utils.get_default_parser("Amazon Redshift utilities for Parse.ly",
                                       commands=commands)
-    parser.add_argument("--table_name", type=str, default="rawdata",
+    parser.add_argument("--table_name", type=str,
                         help="The name of the Redshift table to create/copy")
     parser.add_argument('--redshift_host', type=str,
                         help='The host string of the Redshift instance to which to '
@@ -38,9 +38,9 @@ def get_default_parser(description, commands=None):
     parser.add_argument('--redshift_password', type=str,
                         help='The password to use when connecting to the Redshift'
                              ' instance')
-    parser.add_argument('--redshift_database', type=str, default="parsely",
+    parser.add_argument('--redshift_database', type=str,
                         help='The Redshift database to which to connect')
-    parser.add_argument('--redshift_port', type=str, default="5439",
+    parser.add_argument('--redshift_port', type=str,
                         help='The port on which to connect to Redshift')
     parser.add_argument('--keep-extra-data', action="store_true",
                         help='Optional: create a VARCHAR column for extra_data, which'
