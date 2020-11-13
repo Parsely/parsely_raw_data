@@ -17,7 +17,6 @@ limitations under the License.
 __version__ = "2.4.0"
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
-from six import iteritems
 
 __all__ = [
     "bigquery",
