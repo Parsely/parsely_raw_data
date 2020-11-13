@@ -7,7 +7,22 @@ from dateutil import rrule
 
 from parsely_raw_data import redshift as parsely_redshift
 from parsely_raw_data import utils as parsely_utils
-from dbt.redshift.settings.default import *
+from dbt.redshift.settings.default import (
+    DBT_PROFILE_LOCATION,
+    DBT_PROFILE_TARGET_NAME,
+    ETL_END_DATE,
+    ETL_KEEP_RAW_DATA,
+    ETL_START_DATE,
+    PARSELY_RAW_DATA_TABLE,
+    REDSHIFT_DATABASE,
+    REDSHIFT_HOST,
+    REDSHIFT_PASSWORD,
+    REDSHIFT_PORT,
+    REDSHIFT_USER,
+    S3_AWS_ACCESS_KEY_ID,
+    S3_AWS_SECRET_ACCESS_KEY,
+    S3_NETWORK_NAME,
+)
 from dbt.redshift.settings.merge_settings_yaml import migrate_settings
 
 SETTINGS_ARG_MAPPING = {
@@ -86,6 +101,9 @@ def main():
     settings_migration = migrate_settings()
     if not settings_migration:
         logging.warning("Settings not copied to dbt_profiles.yml successfully.")
+        raise Exception("Settings not copied to dbt_profiles.yml successfully. Please edit default.py or copy the"
+                        "original default.py.schema as default.py and edit carefully. Be mindful of single quotes"
+                        "and double quotes.")
 
     # Handle defaults
     if args.create_table:
@@ -100,7 +118,8 @@ def main():
                 keep_extra_data=get_settings_arg_mapping_value('keep_extra_data', args.keep_extra_data)
             )
         except psycopg2.Error:
-            logging.warning("Table already exists, skipping create table statement.")
+            logging.info(f'Table {get_settings_arg_mapping_value("table_name", args.table_name)} already exists, '
+                         f'skipping create table statement.')
 
     migrate_from_s3_by_day(
         network=get_settings_arg_mapping_value('network', args.network),

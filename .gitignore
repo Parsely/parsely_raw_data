@@ -8,3 +8,6 @@
 build/*
 dist/*
 .idea/*
+target/
+dbt_modules/
+logs/

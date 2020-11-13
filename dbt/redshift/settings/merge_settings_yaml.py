@@ -32,6 +32,7 @@ def migrate_settings():
         continue
 
     with open(r'dbt/redshift/dbt_project.yml', 'w') as file:
-        document = yaml.dump(dbt_profile, file, default_style='"')
+        yaml.dump(dbt_profile, file, default_style='"')
+        stored_successfully = True
 
-    return document
+    return stored_successfully or False
