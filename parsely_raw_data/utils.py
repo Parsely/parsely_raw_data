@@ -50,5 +50,7 @@ def clean_network(network):
     """Format a network name to match AWS resources"""
     return network.replace(".", "-").replace(" ", "-").lower()
 
+
 def parse_datetime_arg(arg):
+    """Format a date string from 'YYYY-MM-DD' to a date object with the same format"""
     return dt.datetime.strptime(arg, '%Y-%m-%d')

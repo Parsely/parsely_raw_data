@@ -60,7 +60,10 @@ def migrate_from_s3_by_day(network=S3_NETWORK_NAME,
                 end_date=ETL_END_DATE,
                 dbt_profiles_dir=DBT_PROFILE_LOCATION,
                 dbt_target=DBT_PROFILE_TARGET_NAME):
-
+    """Copies data from S3 to Redshift, split into daily tasks.
+    Once the daily copies are run, the full DBT ETL is executed.
+    start_date and end_date are both inclusive. To run for a single day,
+    the start_date and end_date should be equivalent."""
     start_date = parsely_utils.parse_datetime_arg(start_date).date()
     end_date = parsely_utils.parse_datetime_arg(end_date).date()
 
@@ -80,6 +83,7 @@ def migrate_from_s3_by_day(network=S3_NETWORK_NAME,
 
     # This runs dbt once all of the new data has been copied into the raw data table
     dpl_wd = os.path.join(os.getcwd(), 'dbt/redshift/')
+    logging.info(f'Running the dbt script located at: {dpl_wd}/run_parsely_dpl.sh')
     subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dpl_wd)
 
 
