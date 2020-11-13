@@ -1,0 +1,41 @@
+"analysis-paths":
+- "analysis"
+"clean-targets":
+- "target"
+- "dbt_modules"
+"config-version": !!int "2"
+"data-paths":
+- "data"
+"macro-paths":
+- "macros"
+"models":
+  "base":
+    "materialized": "view"
+    "optional":
+      "enabled": !!bool "false"
+"name": "parsely"
+"on-run-end":
+- "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{\
+  \ target.schema }}.parsely_rawdata {% endif %}"
+- "truncate table {{var('parsely:events')}}"
+"profile": "parsely-dwh"
+"source-paths":
+- "models"
+"target-path": "target"
+"test-paths":
+- "tests"
+"vars":
+  "custom:actions": "conversion"
+  "custom:deepreadtime": "40"
+  "custom:extradata": "'user_type'"
+  "custom:extradataname": "custom_extra_data"
+  "custom:loyaltyuser": "100"
+  "custom:rollingloyaltyuser": "30"
+  "custom:skimtime": "15"
+  "custom:videodeepwatchtime": "60"
+  "custom:videoskimtime": "15"
+  "etl:keep_rawdata": "True"
+  "parsely:actions": "('pageview', 'heartbeat', 'videostart', 'vheartbeat')"
+  "parsely:events": "parsely_rawdata"
+  "parsely:timezone": "'America/New_York'"
+"version": "0.0.1"

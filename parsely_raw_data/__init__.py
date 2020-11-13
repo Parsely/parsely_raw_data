@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "2.3.0"
+__version__ = "2.4.0"
 
 from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
-from six import iteritems
 
 __all__ = [
     "bigquery",
@@ -69,3 +68,4 @@ def normalize_keys(input_event_dict, schema=None):
     event_dict["schema_version"] = __version__
 
     return event_dict
+

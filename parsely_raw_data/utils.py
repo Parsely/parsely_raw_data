@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import argparse
+import datetime as dt
 
 __license__ = """
 Copyright 2016 Parsely, Inc.
@@ -48,3 +49,8 @@ def get_default_parser(description, commands=None):
 def clean_network(network):
     """Format a network name to match AWS resources"""
     return network.replace(".", "-").replace(" ", "-").lower()
+
+
+def parse_datetime_arg(arg):
+    """Format a date string from 'YYYY-MM-DD' to a date object with the same format"""
+    return dt.datetime.strptime(arg, '%Y-%m-%d')

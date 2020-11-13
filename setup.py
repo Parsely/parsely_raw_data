@@ -47,6 +47,11 @@ install_requires = [
     x.strip() for x in read_lines('requirements.txt') if not x.startswith('-')
 ]
 
+dbt_requires = [
+    'dbt',
+    'psycopg2==2.7.1'
+]
+
 dependency_links = []
 setup_requires = []
 
@@ -91,7 +96,8 @@ def run_setup():
                 'parsely_redshift = parsely_raw_data.redshift:main',
                 'parsely_s3 = parsely_raw_data.s3:main',
                 'parsely_stream = parsely_raw_data.stream:main',
-                'parsely_schema = parsely_raw_data.docgen:main'
+                'parsely_schema = parsely_raw_data.docgen:main',
+                'parsely_redshift_etl = dbt.redshift.redshift_etl:main'
             ]
         },
         install_requires=install_requires,
@@ -101,7 +107,8 @@ def run_setup():
             'test': tests_require,
             'all': install_requires + tests_require,
             'docs': tests_require,
-            'lint': lint_requires
+            'lint': lint_requires,
+            'dbt': dbt_requires
         },
         cmdclass={'test': PyTest},
         ext_modules=[],

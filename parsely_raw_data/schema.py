@@ -4,13 +4,11 @@ from tabulate import tabulate
 
 """
 Data Pipeline event schema DSL has this form:
-
     {"key": "action",     # key or column
      "ex": "pageview",    # example value
      "type": str,         # 'abstract' type
      "size": 256,         # rough size/length of field
      "req": True}         # is the field required?
-
 Those are listed below, and then a number of functions
 export these to example record formats, BigQuery/Redshift DDLs,
 and documentation in Markdown format.
@@ -21,7 +19,7 @@ For all companion fields except for `url_query` and `surl_query`, this means the
 e.g. `campaign_id` will be null for events where campaign is false.
 """
 SCHEMA = [
-    {"key": "action", "ex": "pageview", "type": str, "size": 256, "req": True},
+    {"key": "action", "ex": "pageview", "type": str, "size": 256},
     {"key": "apikey", "ex": "mashable.com", "type": str, "size": 256, "req": True},
     {"key": "campaign_id", "ex": "facebook_campaign", "type": str, "size": 256, "available_with_field": "url_query"},
     {"key": "channel", "ex": "amp", "type": str, "size": 64},
