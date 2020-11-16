@@ -1,6 +1,6 @@
 boto3<1.12,>=1.4.4
 botocore<1.15,>=1.5.0
-google-api-core<1.17.0,>=1.16.0
+google-api-core>=1.16.0,<1.24.0
 protobuf<3.12,>=3.6.0
 google-api-python-client
 psycopg2cffi-compat
