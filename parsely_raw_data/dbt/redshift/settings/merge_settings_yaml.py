@@ -1,4 +1,6 @@
 import yaml
+from pathlib import Path
+
 from .default import *
 
 SETTINGS_VAR_MAPPING = [
@@ -20,7 +22,10 @@ SETTINGS_VAR_MAPPING = [
 
 
 def migrate_settings():
-    with open(r'dbt/redshift/dbt_project.yml') as file:
+    cwd = Path.cwd().parents[0]
+    filepath = f'{cwd}/dbt_project.yml'
+
+    with open(filepath) as file:
         dbt_profile = yaml.load(file, Loader=yaml.FullLoader)
 
     for row in SETTINGS_VAR_MAPPING:
@@ -31,7 +36,7 @@ def migrate_settings():
                 dbt_profile['vars'][row['location']] = str(row['settings'])
         continue
 
-    with open(r'dbt/redshift/dbt_project.yml', 'w') as file:
+    with open(filepath, 'w') as file:
         yaml.dump(dbt_profile, file, default_style='"')
         stored_successfully = True
 
