@@ -22,8 +22,7 @@ SETTINGS_VAR_MAPPING = [
 
 
 def migrate_settings():
-    cwd = Path.cwd().parents[0]
-    filepath = f'{cwd}/dbt_project.yml'
+    filepath = Path(__file__).parent / "../dbt_project.yml"
 
     with open(filepath) as file:
         dbt_profile = yaml.load(file, Loader=yaml.FullLoader)
