@@ -7,7 +7,7 @@ from dateutil import rrule
 
 from parsely_raw_data import redshift as parsely_redshift
 from parsely_raw_data import utils as parsely_utils
-from dbt.redshift.settings.default import (
+from parsely_raw_data.dbt.redshift.settings import (
     DBT_PROFILE_LOCATION,
     DBT_PROFILE_TARGET_NAME,
     ETL_END_DATE,
@@ -23,7 +23,7 @@ from dbt.redshift.settings.default import (
     S3_AWS_SECRET_ACCESS_KEY,
     S3_NETWORK_NAME,
 )
-from dbt.redshift.settings.merge_settings_yaml import migrate_settings
+from parsely_raw_data.dbt.redshift.settings.merge_settings_yaml import migrate_settings
 
 SETTINGS_ARG_MAPPING = {
     'table_name': PARSELY_RAW_DATA_TABLE,

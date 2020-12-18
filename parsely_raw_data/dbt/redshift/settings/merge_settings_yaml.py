@@ -1,5 +1,5 @@
 import yaml
-from dbt.redshift.settings.default import *
+from .default import *
 
 SETTINGS_VAR_MAPPING = [
     {'location': 'profile', 'settings': DBT_PROFILE_NAME},
