@@ -1,2 +1,3 @@
 include *.txt
 include parsely_raw_data/*.thrift
+include parsely_raw_data/dbt/redshift/dbt_project.yaml
