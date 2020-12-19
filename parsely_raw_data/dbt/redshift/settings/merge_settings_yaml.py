@@ -1,4 +1,5 @@
 import yaml
+import pkg_resources
 from pathlib import Path
 
 from .default import *
@@ -23,7 +24,9 @@ SETTINGS_VAR_MAPPING = [
 
 def migrate_settings():
     base_path = Path(__file__).parent
-    filepath = (base_path / "../dbt_project.yml").resolve()
+    # filepath = (base_path / "../dbt_project.yml").resolve()
+    # because this is a package resource, have to reference it with pkg_resources
+    filepath = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/dbt_project.yml")
 
     with open(filepath) as file:
         dbt_profile = yaml.load(file, Loader=yaml.FullLoader)
