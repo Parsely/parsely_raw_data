@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import glob
 import re
 import sys
 import os
-import logging
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -56,20 +54,6 @@ dbt_requires = [
 
 dependency_links = []
 setup_requires = []
-
-
-def get_package_data():
-    package_data = ["dbt/redshift/dbt_project.yml",
-                    "dbt/redshift/run_parsely_dpl.sh",
-                    "dbt/redshift/"]
-    dbt_models_path = "/dbt/redshift/models/*"
-    models_path_list = glob.glob(dbt_models_path)
-    for directory in models_path_list:
-        files = glob.glob(directory + '/*')
-        package_data.extend(files)
-
-    logging.warning(f'package data {package_data}')
-    return package_data
 
 
 class PyTest(TestCommand):
