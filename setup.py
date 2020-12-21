@@ -62,9 +62,11 @@ def get_package_data():
      "dbt/redshift/run_parsely_dpl.sh"
      "dbt/redshift/models/*.sql",
      "dbt/redshift/"]
-    dbt_models_path = "/dbt/redshift/models/*.sql"
-    file_list = glob.glob(dbt_models_path)
-    package_data.append(file_list)
+    dbt_models_path = "/dbt/redshift/models/*"
+    models_path_list = glob.glob(dbt_models_path)
+    for directory in models_path_list:
+        files = glob.glob(directory + '/*')
+        package_data.extend(file_list)
 
     return package_data
 
