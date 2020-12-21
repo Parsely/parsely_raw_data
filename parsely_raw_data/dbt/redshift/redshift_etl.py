@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import logging
-import os
+import pkg_resources
 import psycopg2
 import subprocess
 from dateutil import rrule
@@ -82,9 +82,9 @@ def migrate_from_s3_by_day(network=S3_NETWORK_NAME,
                                 secret_access_key=secret_access_key)
 
     # This runs dbt once all of the new data has been copied into the raw data table
-    dpl_wd = os.path.join(os.getcwd(), 'dbt/redshift/')
-    logging.info(f'Running the dbt script located at: {dpl_wd}/run_parsely_dpl.sh')
-    subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dpl_wd)
+    dbt_etl_script_loc = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/run_parsely_dpl.sh")
+    logging.info(f'Running the dbt script located at: {dbt_etl_script_loc}')
+    subprocess.call(dbt_etl_script_loc + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dbt_etl_script_loc.par)
 
 
 def main():
