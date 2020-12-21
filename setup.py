@@ -3,6 +3,7 @@ import glob
 import re
 import sys
 import os
+import logging
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -64,11 +65,12 @@ def get_package_data():
      "dbt/redshift/"]
     dbt_models_path = "/dbt/redshift/models/*"
     models_path_list = glob.glob(dbt_models_path)
+    package_data.extend(models_path_list)
     for directory in models_path_list:
-        package_data.append(directory)
         files = glob.glob(directory + '/*')
         package_data.extend(files)
 
+    logging.warning(f'package data {package_data}')
     return package_data
 
 
