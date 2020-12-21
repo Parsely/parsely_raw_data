@@ -116,7 +116,8 @@ def run_setup():
         test_suite='nose.collector',
         include_package_data=True,
         package_data={"parsely_raw_data": ["dbt/redshift/dbt_project.yml",
-                                           "dbt/redshift/run_parsely_dpl.sh",
+                                           "dbt/redshift/run_parsely_dpl.sh"
+                                           "dbt/redshift/models/",
                                            "dbt/redshift/"]},
         classifiers=[
             "Development Status :: 5 - Production/Stable",

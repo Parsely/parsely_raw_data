@@ -1,4 +1,3 @@
 include *.txt
-include *.sql
 include parsely_raw_data/*.thrift
 include parsely_raw_data/dbt/redshift/*
