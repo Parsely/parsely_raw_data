@@ -60,12 +60,10 @@ setup_requires = []
 
 def get_package_data():
     package_data = ["dbt/redshift/dbt_project.yml",
-     "dbt/redshift/run_parsely_dpl.sh"
-     "dbt/redshift/models/",
-     "dbt/redshift/"]
+                    "dbt/redshift/run_parsely_dpl.sh",
+                    "dbt/redshift/"]
     dbt_models_path = "/dbt/redshift/models/*"
     models_path_list = glob.glob(dbt_models_path)
-    package_data.extend(models_path_list)
     for directory in models_path_list:
         files = glob.glob(directory + '/*')
         package_data.extend(files)
@@ -133,7 +131,6 @@ def run_setup():
         dependency_links=dependency_links,
         test_suite='nose.collector',
         include_package_data=True,
-        package_data={"parsely_raw_data": get_package_data()},
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
