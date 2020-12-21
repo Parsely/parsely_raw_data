@@ -5,7 +5,6 @@ from pathlib import Path
 from .default import *
 
 SETTINGS_VAR_MAPPING = [
-    {'location': 'parsely:events', 'settings': PARSELY_RAW_DATA_TABLE},
     {'location': 'parsely:timezone', 'settings': ETL_TIME_ZONE},
     {'location': 'parsely:actions', 'settings': ETL_PARSELY_ACTIONS},
     {'location': 'etl:keep_rawdata', 'settings': ETL_KEEP_RAW_DATA},
@@ -21,10 +20,11 @@ SETTINGS_VAR_MAPPING = [
 ]
 
 
-def migrate_settings(profile=DBT_PROFILE_NAME):
+def migrate_settings(profile=DBT_PROFILE_NAME, table=PARSELY_RAW_DATA_TABLE):
     # because this is a package resource, have to reference it with pkg_resources
     filepath = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/dbt_project.yml")
     SETTINGS_VAR_MAPPING.append({'location': 'profile', 'settings': profile})
+    SETTINGS_VAR_MAPPING.append({'location': 'parsely:events', 'settings': table})
 
     with open(filepath) as file:
         dbt_profile = yaml.load(file, Loader=yaml.FullLoader)

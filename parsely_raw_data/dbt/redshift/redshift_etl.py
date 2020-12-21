@@ -105,7 +105,7 @@ def main():
     args = parser.parse_args()
 
     # Reset dbt_profile to any updated settings:
-    settings_migration = migrate_settings(profile=args.dbt_profile)
+    settings_migration = migrate_settings(profile=args.dbt_profile, table=args.table_name)
     if not settings_migration:
         logging.warning("Settings not copied to dbt_profiles.yml successfully.")
         raise Exception("Settings not copied to dbt_profiles.yml successfully. Please edit default.py or copy the"
