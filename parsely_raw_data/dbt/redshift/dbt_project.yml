@@ -18,7 +18,7 @@
 - "{% if var('etl:keep_rawdata') == true %} select 1 {% else %} truncate table {{\
   \ target.schema }}.parsely_rawdata {% endif %}"
 - "truncate table {{var('parsely:events')}}"
-"profile": "parsely-dwh"
+"profile": "parsely_dwh"
 "source-paths":
 - "models"
 "target-path": "target"

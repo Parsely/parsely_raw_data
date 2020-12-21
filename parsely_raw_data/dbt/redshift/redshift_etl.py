@@ -85,7 +85,7 @@ def migrate_from_s3_by_day(network=S3_NETWORK_NAME,
     dbt_etl_script_loc = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/run_parsely_dpl.sh")
     dbt_etl_cwd = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/")
     logging.info(f'Running the dbt script located at: {dbt_etl_script_loc}')
-    subprocess.call(dbt_etl_script_loc + ' '+ dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dbt_etl_cwd)
+    subprocess.call(dbt_etl_script_loc + ' ' + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dbt_etl_cwd)
 
 
 def main():
