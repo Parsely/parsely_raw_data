@@ -60,13 +60,14 @@ setup_requires = []
 def get_package_data():
     package_data = ["dbt/redshift/dbt_project.yml",
      "dbt/redshift/run_parsely_dpl.sh"
-     "dbt/redshift/models/*.sql",
+     "dbt/redshift/models/",
      "dbt/redshift/"]
     dbt_models_path = "/dbt/redshift/models/*"
     models_path_list = glob.glob(dbt_models_path)
     for directory in models_path_list:
+        package_data.append(directory)
         files = glob.glob(directory + '/*')
-        package_data.extend(file_list)
+        package_data.extend(files)
 
     return package_data
 
