@@ -96,6 +96,8 @@ def main():
                         help='The last day to process data from S3 to Redshift in the format YYYY-MM-DD')
     parser.add_argument('--dbt_profiles_dir', required=False, default=DBT_PROFILE_LOCATION,
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
+    parser.add_argument('--dbt_profile', required=False, default='parsely_dwh',
+                        help='The name of the dbt profile located in the local /.dbt/profiles.yml file')
     parser.add_argument('--dbt_target', required=False, default=DBT_PROFILE_TARGET_NAME,
                         help='The target ie. dev, prod, or test to use within the dbt profiles.yml file.')
     parser.add_argument('--create-table', action='store_true', default=True,
@@ -103,7 +105,7 @@ def main():
     args = parser.parse_args()
 
     # Reset dbt_profile to any updated settings:
-    settings_migration = migrate_settings()
+    settings_migration = migrate_settings(profile=args.dbt_profile)
     if not settings_migration:
         logging.warning("Settings not copied to dbt_profiles.yml successfully.")
         raise Exception("Settings not copied to dbt_profiles.yml successfully. Please edit default.py or copy the"
