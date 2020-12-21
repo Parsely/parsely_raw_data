@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import glob
 import re
 import sys
 import os
@@ -54,6 +55,18 @@ dbt_requires = [
 
 dependency_links = []
 setup_requires = []
+
+
+def get_package_data():
+    package_data = ["dbt/redshift/dbt_project.yml",
+     "dbt/redshift/run_parsely_dpl.sh"
+     "dbt/redshift/models/*.sql",
+     "dbt/redshift/"]
+    dbt_models_path = "/dbt/redshift/models/*.sql"
+    file_list = glob.glob(dbt_models_path)
+    package_data.append(file_list)
+
+    return package_data
 
 
 class PyTest(TestCommand):
@@ -115,10 +128,7 @@ def run_setup():
         dependency_links=dependency_links,
         test_suite='nose.collector',
         include_package_data=True,
-        package_data={"parsely_raw_data": ["dbt/redshift/dbt_project.yml",
-                                           "dbt/redshift/run_parsely_dpl.sh"
-                                           "dbt/redshift/models/*.sql",
-                                           "dbt/redshift/"]},
+        package_data={"parsely_raw_data": get_package_data()},
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
