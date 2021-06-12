@@ -16,7 +16,7 @@ limitations under the License.
 
 __version__ = "2.4.1"
 
-from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils
+from . import bigquery, docgen, redshift, s3, samples, schema, stream, utils, dbt
 
 __all__ = [
     "bigquery",
@@ -27,6 +27,7 @@ __all__ = [
     "schema",
     "stream",
     "utils",
+    "dbt"
 ]
 
 BOOLEAN_FIELDS = {"flags_is_amp"}

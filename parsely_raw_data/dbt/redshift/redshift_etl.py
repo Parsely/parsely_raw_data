@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 import logging
-import os
+import pkg_resources
 import psycopg2
 import subprocess
 from dateutil import rrule
 
 from parsely_raw_data import redshift as parsely_redshift
 from parsely_raw_data import utils as parsely_utils
-from dbt.redshift.settings.default import (
+from parsely_raw_data.dbt.redshift.settings import (
     DBT_PROFILE_LOCATION,
     DBT_PROFILE_TARGET_NAME,
     ETL_END_DATE,
@@ -23,7 +23,7 @@ from dbt.redshift.settings.default import (
     S3_AWS_SECRET_ACCESS_KEY,
     S3_NETWORK_NAME,
 )
-from dbt.redshift.settings.merge_settings_yaml import migrate_settings
+from parsely_raw_data.dbt.redshift.settings.merge_settings_yaml import migrate_settings
 
 SETTINGS_ARG_MAPPING = {
     'table_name': PARSELY_RAW_DATA_TABLE,
@@ -82,9 +82,10 @@ def migrate_from_s3_by_day(network=S3_NETWORK_NAME,
                                 secret_access_key=secret_access_key)
 
     # This runs dbt once all of the new data has been copied into the raw data table
-    dpl_wd = os.path.join(os.getcwd(), 'dbt/redshift/')
-    logging.info(f'Running the dbt script located at: {dpl_wd}/run_parsely_dpl.sh')
-    subprocess.call(dpl_wd + "run_parsely_dpl.sh " + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dpl_wd)
+    dbt_etl_script_loc = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/run_parsely_dpl.sh")
+    dbt_etl_cwd = pkg_resources.resource_filename("parsely_raw_data", "dbt/redshift/")
+    logging.info(f'Running the dbt script located at: {dbt_etl_script_loc}')
+    subprocess.call(dbt_etl_script_loc + ' ' + dbt_profiles_dir + ' ' + dbt_target, shell=True, cwd=dbt_etl_cwd)
 
 
 def main():
@@ -95,6 +96,8 @@ def main():
                         help='The last day to process data from S3 to Redshift in the format YYYY-MM-DD')
     parser.add_argument('--dbt_profiles_dir', required=False, default=DBT_PROFILE_LOCATION,
                         help='The location from root that contains the .dbt/profiles.yml file, example: /home/user/.dbt/')
+    parser.add_argument('--dbt_profile', required=False, default='parsely_dwh',
+                        help='The name of the dbt profile located in the local /.dbt/profiles.yml file')
     parser.add_argument('--dbt_target', required=False, default=DBT_PROFILE_TARGET_NAME,
                         help='The target ie. dev, prod, or test to use within the dbt profiles.yml file.')
     parser.add_argument('--create-table', action='store_true', default=True,
@@ -102,7 +105,7 @@ def main():
     args = parser.parse_args()
 
     # Reset dbt_profile to any updated settings:
-    settings_migration = migrate_settings()
+    settings_migration = migrate_settings(profile=args.dbt_profile, table=args.table_name)
     if not settings_migration:
         logging.warning("Settings not copied to dbt_profiles.yml successfully.")
         raise Exception("Settings not copied to dbt_profiles.yml successfully. Please edit default.py or copy the"
