@@ -162,7 +162,7 @@ def mk_bigquery_table():
             float: "FLOAT",
             bool: "BOOLEAN",
             object: "JSON",
-            list: "STRING (REPEATED)"
+            list: "ARRAY<STRING>"
         }
         type_ = types2str[record["type"]]
         if type_ == "STRING":
@@ -182,15 +182,10 @@ def mk_bigquery_schema():
             # skip json types since it requires additional
             # modelling from the user
             continue
-        if "REPEATED" in type_:
-            type_ = type_.split(" ")[0]
-            mode = "REPEATED"
-        else:
-            mode = "NULLABLE"
         jsonlines.append({
             "name": key,
             "type": type_,
-            "mode": mode
+            "mode": "NULLABLE"
         })
     return jsonlines
 
