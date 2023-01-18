@@ -29,11 +29,9 @@ limitations under the License.
 log = logging.getLogger(__name__)
 
 
-def streaming_insert_bigquery(jsonlines,
-                              bq_conn=None,
-                              project_id=None,
-                              dataset_id=None,
-                              table_id=None):
+def streaming_insert_bigquery(
+    jsonlines, bq_conn=None, project_id=None, dataset_id=None, table_id=None
+):
     """Write a stream of events to BigQuery
 
     :param bq_conn: The BigQuery connection to write to
@@ -49,35 +47,34 @@ def streaming_insert_bigquery(jsonlines,
         "kind": "bigquery#tableDataInsertAllRequest",
         "skipInvalidRows": False,
         "ignoreUnknownValues": False,
-        "rows": [
-            {"json": line} for line in jsonlines
-        ]
+        "rows": [{"json": line} for line in jsonlines],
     }
     if bq_conn is None:
         pprint.PrettyPrinter(indent=0).pprint(insert_body)
         return False
-    query = bq_conn.tabledata().insertAll(projectId=project_id,
-                                          datasetId=dataset_id,
-                                          tableId=table_id,
-                                          body=insert_body)
+    query = bq_conn.tabledata().insertAll(
+        projectId=project_id, datasetId=dataset_id, tableId=table_id, body=insert_body
+    )
     response = query.execute(num_retries=5)
-    if 'insertErrors' in response:
-        for error_set in response['insertErrors']:
-            for error in error_set['errors']:
+    if "insertErrors" in response:
+        for error_set in response["insertErrors"]:
+            for error in error_set["errors"]:
                 log.error(error)
         return False
     return True
 
 
-def copy_from_s3(network,
-                 s3_prefix="",
-                 access_key_id="",
-                 secret_access_key="",
-                 region_name="us-east-1",
-                 project_id=None,
-                 dataset_id=None,
-                 table_id=None,
-                 dry_run=False):
+def copy_from_s3(
+    network,
+    s3_prefix="",
+    access_key_id="",
+    secret_access_key="",
+    region_name="us-east-1",
+    project_id=None,
+    dataset_id=None,
+    table_id=None,
+    dry_run=False,
+):
     """Load events from S3 to BigQuery using the BQ streaming insert API.
 
     :param network: The Parse.ly network for which to perform writes (eg
@@ -104,16 +101,26 @@ def copy_from_s3(network,
     bq_conn = None
     if not dry_run:
         bq_conn = google_build(
-            'bigquery', 'v2',
-            credentials=GoogleCredentials.get_application_default())
-    s3_stream = events_s3(network, prefix=s3_prefix, access_key_id=access_key_id,
-                          secret_access_key=secret_access_key,
-                          region_name=region_name)
+            "bigquery", "v2", credentials=GoogleCredentials.get_application_default()
+        )
+    s3_stream = events_s3(
+        network,
+        prefix=s3_prefix,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        region_name=region_name,
+    )
 
-    schema_compliant_fields = [column['name'] for column in mk_bigquery_schema()]
+    bigquery_schema = mk_bigquery_schema()
 
     def schema_compliant(jsonline):
-        return {k: jsonline.get(k, None) for k in schema_compliant_fields}
+        schema_dict = {
+            col["name"]: jsonline.get(col["name"], None) for col in bigquery_schema
+        }
+        for col in bigquery_schema:
+            if col["mode"] == "REPEATED" and schema_dict[col["name"]] == None:
+                schema_dict[col["name"]] = []
+        return schema_dict
 
     def chunked(seq, chunk_size):
         chunk = []
@@ -126,9 +133,13 @@ def copy_from_s3(network,
             yield chunk
 
     for events in chunked(s3_stream, 500):
-        streaming_insert_bigquery(events, bq_conn=bq_conn, project_id=project_id,
-                              dataset_id=dataset_id, table_id=table_id)
-
+        streaming_insert_bigquery(
+            events,
+            bq_conn=bq_conn,
+            project_id=project_id,
+            dataset_id=dataset_id,
+            table_id=table_id,
+        )
 
 
 def create_table(project_id, table_id, dataset_id, debug=False):
@@ -148,32 +159,45 @@ def create_table(project_id, table_id, dataset_id, debug=False):
         "tableReference": {
             "projectId": project_id,
             "tableId": table_id,
-            "datasetId": dataset_id
-        }
+            "datasetId": dataset_id,
+        },
     }
     if debug:
         print("Running the following BigQuery JSON table insert:")
         print(json.dumps(schema, indent=4, sort_keys=True))
     credentials = GoogleCredentials.get_application_default()
-    bigquery = google_build('bigquery', 'v2', credentials=credentials)
-    bigquery.tables().insert(projectId=project_id,
-                             datasetId=dataset_id,
-                             body=schema).execute()
+    bigquery = google_build("bigquery", "v2", credentials=credentials)
+    bigquery.tables().insert(
+        projectId=project_id, datasetId=dataset_id, body=schema
+    ).execute()
 
 
 def main():
     commands = ["copy_from_s3", "create_table"]
-    parser = utils.get_default_parser("Google BigQuery utilities for Parse.ly",
-                                      commands=commands)
-    parser.add_argument('--dry_run', action="store_true",
-                        help="If true, don't perform writes to Bigquery"
-                             'connect, ending in "redshift.amazonaws.com"')
-    parser.add_argument('--bigquery_project_id', type=str,
-                        help='The ID of the BigQuery project to which to connect')
-    parser.add_argument('--bigquery_dataset_id', type=str,
-                        help='The ID of the BigQuery dataset to which to connect')
-    parser.add_argument('--bigquery_table_id', type=str,
-                        help='The ID of the BigQuery table to which to connect')
+    parser = utils.get_default_parser(
+        "Google BigQuery utilities for Parse.ly", commands=commands
+    )
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="If true, don't perform writes to Bigquery"
+        'connect, ending in "redshift.amazonaws.com"',
+    )
+    parser.add_argument(
+        "--bigquery_project_id",
+        type=str,
+        help="The ID of the BigQuery project to which to connect",
+    )
+    parser.add_argument(
+        "--bigquery_dataset_id",
+        type=str,
+        help="The ID of the BigQuery dataset to which to connect",
+    )
+    parser.add_argument(
+        "--bigquery_table_id",
+        type=str,
+        help="The ID of the BigQuery table to which to connect",
+    )
     args = parser.parse_args()
 
     if args.command == "copy_from_s3":
@@ -186,15 +210,16 @@ def main():
             project_id=args.bigquery_project_id,
             dataset_id=args.bigquery_dataset_id,
             table_id=args.bigquery_table_id,
-            dry_run=args.dry_run
+            dry_run=args.dry_run,
         )
     elif args.command == "create_table":
         create_table(
             project_id=args.bigquery_project_id,
             dataset_id=args.bigquery_dataset_id,
             table_id=args.bigquery_table_id,
-            debug=args.debug
+            debug=args.debug,
         )
+
 
 if __name__ == "__main__":
     main()
