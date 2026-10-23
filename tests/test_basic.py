@@ -59,6 +59,7 @@ expected_view = {
     "ref_scheme": "http",
     "referrer": "http://www.example.com/article-123",
     "schema_version": parsely_raw_data.__version__,
+    "scroll_depth": None,
     "session": True,
     "session_id": 5,
     "session_initial_referrer": "https://www.google.ca/",
@@ -259,6 +260,13 @@ def test_normalize_keys_partially_complete_dict():
     # test passing event dict yield all expected fields in schema
     normalized_dict = parsely_raw_data.normalize_keys(test_view, schema=public_schema_keys)
     assert normalized_dict == expected_view
+
+
+def test_normalize_keys_keeps_scroll_depth():
+    public_schema_keys = {text_type(field["key"]) for field in parsely_raw_data.schema.SCHEMA}
+    heartbeat = dict(test_view, action="heartbeat", scroll_depth=75)
+    normalized_dict = parsely_raw_data.normalize_keys(heartbeat, schema=public_schema_keys)
+    assert normalized_dict["scroll_depth"] == 75
 
 
 def test_basic():
