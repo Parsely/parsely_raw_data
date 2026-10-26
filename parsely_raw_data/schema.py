@@ -76,9 +76,13 @@ SCHEMA = [
     {"key": "referrer", "ex": "http://mashable.com/", "type": str},
     {"key": "schema_version", "ex": "2.3.0", "type": str, "size": 64},
     # Heartbeats only, and only on beats where the pageview's max depth rose, so take
-    # the max per pageview_id. Buckets 0/25/50/75/100. Only for apikeys with the
-    # scroll depth grant.
+    # the max per pageview_id. A percent: the highest of the apikey's depth buckets
+    # reached (default 25/50/75/100), or 0 when measured before any scroll. Only for
+    # apikeys with the scroll depth grant.
     {"key": "scroll_depth", "ex": 75, "type": int},
+    # What depth was measured against: selector, auto (detected article body) or page.
+    # Only on a pageview's first depth report. Same grant as scroll_depth.
+    {"key": "scroll_depth_basis", "ex": "auto", "type": str, "size": 16},
     {"key": "session", "ex": True, "type": bool},
     {"key": "session_id", "ex": 6, "type": int, "available_with_field": "session"},
     {"key": "session_initial_referrer", "ex": "http://mashable.com/", "type": str, "available_with_field": "session"},
