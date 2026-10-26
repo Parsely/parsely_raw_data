@@ -61,6 +61,8 @@ expected_view = {
     "schema_version": parsely_raw_data.__version__,
     "scroll_depth": None,
     "scroll_depth_basis": None,
+    "scroll_grew": None,
+    "scroll_screens": None,
     "session": True,
     "session_id": 5,
     "session_initial_referrer": "https://www.google.ca/",

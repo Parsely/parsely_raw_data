@@ -83,6 +83,12 @@ SCHEMA = [
     # What depth was measured against: selector, auto (detected article body) or page.
     # Only on a pageview's first depth report. Same grant as scroll_depth.
     {"key": "scroll_depth_basis", "ex": "auto", "type": str, "size": 16},
+    # True on the one heartbeat after the measured region grew past 1.25x its height
+    # at the page view's first scroll, so its scroll_depth is a lower bound. Same grant.
+    {"key": "scroll_grew", "ex": True, "type": bool},
+    # Screens scrolled: whole viewport heights reached from the top of the page, 1-20.
+    # Only on beats where it rose, so take the max per pageview_id. Same grant.
+    {"key": "scroll_screens", "ex": 3, "type": int},
     {"key": "session", "ex": True, "type": bool},
     {"key": "session_id", "ex": 6, "type": int, "available_with_field": "session"},
     {"key": "session_initial_referrer", "ex": "http://mashable.com/", "type": str, "available_with_field": "session"},
